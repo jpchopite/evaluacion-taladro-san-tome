@@ -955,7 +955,7 @@ function chooserView() {
     </div>` : '';
   const cards = Object.entries(GRUPOS).map(([k, g], i) => `
     <button class="group-card" data-g="${k}" data-tone="${k}" style="--i:${i}">
-      <span class="gc-top"><span class="gc-icon">${k === 'maestria' ? ICON.chart : ICON.pumpjack}</span><span class="gc-tag">${i === 0 ? 'Primer viaje' : 'Segundo viaje'}</span></span>
+      <span class="gc-top"><span class="gc-icon">${k === 'maestria' ? ICON.chart : ICON.pumpjack}</span></span>
       <span class="n">${esc(g.nombre)}</span>
       <span class="d">${esc(g.desc)}</span>
       <span class="gc-meta"><span>${g.pasos.length} etapas (A–${LET[g.pasos.length - 1]})</span><span>≈ 15 min</span><span>${allItems(k).filter(i => i.t !== 'consent').length} preguntas</span></span>
