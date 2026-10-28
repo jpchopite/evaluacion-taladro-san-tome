@@ -2180,87 +2180,171 @@ renderStatus();
 })();
 </script>
 <script>
-/* Start screen: a 3D oil barrel made of points. Loose particles drift in and assemble the barrel,
-   which turns slowly; the pointer tilts it and pushes nearby points away. Start screen only. */
+/* Start screen: a detailed 3D pumpjack (balancín) made of points. The crank turns, the walking beam
+   rocks and the horsehead lifts the polished rod. Loose particles assemble it on load; the pointer
+   tilts the model and pushes nearby points away. Start screen only. */
 (() => {
   const box = document.getElementById('morph'); if (!box) return;
   const canvas = box.querySelector('canvas'), ctx = canvas.getContext('2d'); if (!ctx) return;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
-  const R = 1, HH = 1.45, pts = [];
-  const add = (x, y, z, nx, ny, nz, kind) => pts.push({ hx: x, hy: y, hz: z, nx, ny, nz, kind });
-  /* Body: slightly bulged cylinder; hoops at the rims and at one and two thirds of the height. */
-  const rows = 34, cols = 46;
-  for (let i = 0; i <= rows; i++) {
-    const v = i / rows, y = -HH + 2 * HH * v;
-    const hoop = [0.02, 0.33, 0.67, 0.98].some(h => Math.abs(v - h) < 0.018);
-    const bulge = 1 + 0.06 * Math.sin(Math.PI * v) + (hoop ? 0.035 : 0);
-    const n = hoop ? cols * 2 : cols;
-    for (let j = 0; j < n; j++) { const a = (j + (i % 2) * 0.5) / n * Math.PI * 2 + (hoop ? 0 : (Math.random() - .5) * 0.05); add(Math.cos(a) * R * bulge, y, Math.sin(a) * R * bulge, Math.cos(a), 0, Math.sin(a), hoop ? 'hoop' : 'body'); }
+  const pts = [];
+  /* Coordinates: x along the unit, y down (ground at y = 1.3), z across. */
+  const O = [0.05, -0.62];          // samson-post pivot (saddle bearing)
+  const C = [-1.12, 0.62];          // crank shaft
+  const RH = 1.45, CR = 0.42, GROUND = 1.3;
+  const add = (g, x, y, z, nx, ny, nz, kind, extra) => pts.push(Object.assign({ g, lx: x, ly: y, lz: z, nx, ny, nz, kind }, extra || {}));
+  const boxP = (g, cx, cy, cz, sx, sy, sz, h, kind) => {
+    const faces = [[0, 1, 2], [1, 0, 2], [2, 0, 1]];
+    for (const [ax, u, v] of faces) for (const sg of [-1, 1]) {
+      const S = [sx, sy, sz], nu = Math.max(1, Math.round(S[u] / h)), nv = Math.max(1, Math.round(S[v] / h));
+      for (let i = 0; i <= nu; i++) for (let j = 0; j <= nv; j++) {
+        const q = [0, 0, 0], n = [0, 0, 0]; q[ax] = sg * S[ax] / 2; q[u] = (i / nu - .5) * S[u]; q[v] = (j / nv - .5) * S[v]; n[ax] = sg;
+        add(g, cx + q[0], cy + q[1], cz + q[2], n[0], n[1], n[2], kind);
+      }
+    }
+  };
+  const tube = (g, a, b2, r, h, kind) => {
+    const d = [b2[0] - a[0], b2[1] - a[1], b2[2] - a[2]], L = Math.hypot(...d), t = d.map(x => x / L);
+    let u = Math.abs(t[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+    const c1 = [t[1] * u[2] - t[2] * u[1], t[2] * u[0] - t[0] * u[2], t[0] * u[1] - t[1] * u[0]], l1 = Math.hypot(...c1); u = c1.map(x => x / l1);
+    const w = [t[1] * u[2] - t[2] * u[1], t[2] * u[0] - t[0] * u[2], t[0] * u[1] - t[1] * u[0]];
+    const na = Math.max(2, Math.round(L / h)), nr = Math.max(4, Math.round(2 * Math.PI * r / h));
+    for (let i = 0; i <= na; i++) for (let k = 0; k < nr; k++) {
+      const s2 = i / na, an = (k + (i % 2) * .5) / nr * Math.PI * 2, cs = Math.cos(an), sn = Math.sin(an);
+      const n = [u[0] * cs + w[0] * sn, u[1] * cs + w[1] * sn, u[2] * cs + w[2] * sn];
+      add(g, a[0] + d[0] * s2 + n[0] * r, a[1] + d[1] * s2 + n[1] * r, a[2] + d[2] * s2 + n[2] * r, n[0], n[1], n[2], kind);
+    }
+  };
+  /* Disc lying in an x-y plane at depth z (crank hub, sheaves, counterweight faces). */
+  const plate = (g, cx, cy, z, r0, r1, a0, a1, h, kind, nz) => {
+    for (let r = r0; r <= r1 + 1e-6; r += h) { const n = Math.max(3, Math.round((a1 - a0) * r / h)); for (let i = 0; i <= n; i++) { const an = a0 + (a1 - a0) * i / n; add(g, cx + Math.cos(an) * r, cy + Math.sin(an) * r, z, 0, 0, nz, kind); } }
+  };
+  const arcEdge = (g, cx, cy, z0, z1, r, a0, a1, h, kind) => {
+    const n = Math.round((a1 - a0) * r / h), m = Math.max(1, Math.round((z1 - z0) / h));
+    for (let i = 0; i <= n; i++) for (let j = 0; j <= m; j++) { const an = a0 + (a1 - a0) * i / n; add(g, cx + Math.cos(an) * r, cy + Math.sin(an) * r, z0 + (z1 - z0) * j / m, Math.cos(an), Math.sin(an), 0, kind); }
+  };
+  const H = 0.072;
+  /* --- Static: skid, ground, samson post, gearbox, motor, belt guard, wellhead --- */
+  boxP('s', -0.15, GROUND - 0.06, -0.36, 3.6, 0.1, 0.1, H, 'steel');
+  boxP('s', -0.15, GROUND - 0.06, 0.36, 3.6, 0.1, 0.1, H, 'steel');
+  for (const x of [-1.85, -1.1, -0.35, 0.4, 1.1]) boxP('s', x, GROUND - 0.06, 0, 0.08, 0.08, 0.64, H, 'steel');
+  for (let i = 0; i < 260; i++) { const a = Math.random() * 6.283, r = 0.6 + Math.sqrt(Math.random()) * 2.0; add('s', Math.cos(a) * r * 1.15 - 0.1, GROUND + 0.02, Math.sin(a) * r * 0.75, 0, -1, 0, 'ground'); }
+  const apex = [O[0], O[1] + 0.12];
+  for (const z of [-0.34, 0.34]) { tube('s', [0.62, GROUND - 0.1, z], [apex[0] + 0.04, apex[1], z * 0.25], 0.045, H, 'steel'); tube('s', [-0.5, GROUND - 0.1, z], [apex[0] - 0.04, apex[1], z * 0.25], 0.045, H, 'steel'); }
+  for (const yy of [0.55, -0.05]) { const f = (GROUND - 0.1 - yy) / (GROUND - 0.1 - apex[1]); for (const z of [-0.34, 0.34]) tube('s', [0.62 + (apex[0] + 0.04 - 0.62) * f, yy, z + (z * 0.25 - z) * f], [-0.5 + (apex[0] - 0.04 + 0.5) * f, yy, z + (z * 0.25 - z) * f], 0.025, H, 'steel'); }
+  boxP('s', O[0], O[1] + 0.06, 0, 0.22, 0.1, 0.26, H * 0.8, 'trim');                       // saddle bearing
+  boxP('s', C[0], C[1] + 0.25, 0, 0.62, 0.5, 0.5, H, 'steel');                              // gearbox
+  boxP('s', C[0], C[1] + 0.58, 0, 0.7, 0.16, 0.56, H, 'steel');                             // gearbox base
+  tube('s', [C[0], C[1], -0.42], [C[0], C[1], 0.42], 0.06, H, 'trim');                      // crank shaft
+  tube('s', [-1.85, 0.98, -0.12], [-1.85, 0.98, 0.18], 0.17, H, 'steel');                   // motor
+  boxP('s', -1.85, 1.17, 0.03, 0.34, 0.08, 0.34, H, 'steel');
+  plate('s', -1.85, 0.98, 0.31, 0.04, 0.2, 0, 6.283, H, 'trim', 1); plate('s', C[0] - 0.05, C[1] + 0.12, 0.31, 0.04, 0.26, 0, 6.283, H, 'trim', 1); // sheaves
+  for (const s2 of [-1, 1]) tube('s', [-1.85, 0.98 + s2 * 0.2, 0.33], [C[0] - 0.05, C[1] + 0.12 + s2 * 0.26, 0.33], 0.012, H * 0.8, 'rod'); // belt
+  const WX = O[0] + RH;
+  tube('s', [WX, GROUND, 0], [WX, 0.92, 0], 0.09, H, 'steel');                              // wellhead
+  boxP('s', WX, 0.9, 0, 0.26, 0.06, 0.26, H * 0.8, 'trim');                                  // stuffing box flange
+  tube('s', [WX, 1.08, 0], [WX, 1.08, 0.75], 0.045, H, 'steel');                            // flow line
+  tube('s', [WX, 1.08, 0.75], [WX, GROUND, 0.75], 0.04, H, 'steel');
+  plate('s', WX, 1.08, 0.42, 0, 0.1, 0, 6.283, H * 0.8, 'trim', 1);                        // valve wheel
+  /* --- Walking beam group (rotates about O): beam, horsehead, equalizer --- */
+  boxP('b', -0.05, 0, 0, 2.55, 0.16, 0.13, H, 'steel');
+  boxP('b', -1.3, 0.02, 0, 0.12, 0.2, 0.5, H, 'trim');                                       // equalizer
+  const hz = 0.11;
+  arcEdge('b', 0, 0, -hz, hz, RH, -0.34, 0.42, H * 0.8, 'head');                            // horsehead face
+  for (const z of [-hz, hz]) for (let r = RH - 0.42; r <= RH; r += H) { const n = Math.round(0.76 * r / H); for (let i = 0; i <= n; i++) { const an = -0.34 + 0.76 * i / n; add('b', Math.cos(an) * r, Math.sin(an) * r, z, 0, 0, Math.sign(z), 'head'); } }
+  /* --- Crank group (rotates about C): two crank arms with counterweights --- */
+  for (const z of [-0.36, 0.36]) {
+    plate('k', 0, 0, z, 0.02, 0.14, 0, 6.283, H, 'trim', Math.sign(z));
+    for (let r = 0.1; r <= CR + 0.02; r += H) for (const w of [-0.06, 0, 0.06]) add('k', r, w, z, 0, 0, Math.sign(z), 'steel');
+    plate('k', 0, 0, z + Math.sign(z) * 0.03, 0.32, 0.62, Math.PI - 0.62, Math.PI + 0.62, H, 'head', Math.sign(z));
+    arcEdge('k', 0, 0, z, z + Math.sign(z) * 0.06, 0.62, Math.PI - 0.62, Math.PI + 0.62, H, 'head');
   }
-  /* Lid with a rim and the two bungs. */
-  for (const sgn of [-1, 1]) {
-    for (let rr = 0.12; rr <= 0.96; rr += 0.11) { const n = Math.round(46 * rr); for (let j = 0; j < n; j++) { const a = j / n * Math.PI * 2; add(Math.cos(a) * rr, sgn * HH, Math.sin(a) * rr, 0, sgn, 0, rr > 0.85 ? 'hoop' : 'lid'); } }
-    if (sgn < 0) for (const [bx, bz] of [[0.52, 0.18], [-0.42, -0.3]]) for (let j = 0; j < 14; j++) { const a = j / 14 * Math.PI * 2; add(bx + Math.cos(a) * 0.12, -HH - 0.03, bz + Math.sin(a) * 0.12, 0, -1, 0, 'hoop'); }
-  }
-  /* Loose particles orbiting the barrel. */
-  const LOOSE = 220;
-  for (let i = 0; i < LOOSE; i++) { const a = Math.random() * Math.PI * 2, r = 1.5 + Math.random() * 1.1, y = (Math.random() * 2 - 1) * 2; add(Math.cos(a) * r, y, Math.sin(a) * r, 0, 0, 0, 'loose'); pts[pts.length - 1].a = a; pts[pts.length - 1].r = r; pts[pts.length - 1].sp = (0.0015 + Math.random() * 0.003) * (Math.random() < .5 ? 1 : -1); }
-  /* Every point starts scattered and flies to its place. */
-  pts.forEach(p => { const a = Math.random() * 6.28, b = Math.acos(2 * Math.random() - 1), r = 2.5 + Math.random() * 2; p.x = Math.sin(b) * Math.cos(a) * r; p.y = Math.cos(b) * r; p.z = Math.sin(b) * Math.sin(a) * r; p.sx = 0; p.sy = 0; p.ox = 0; p.oy = 0; p.vx = 0; p.vy = 0; p.d = 0.02 + Math.random() * 0.03; });
+  /* --- Linkages recomputed every frame: pitman arms, bridle, polished rod --- */
+  for (const z of [-0.33, 0.33]) for (let i = 0; i <= 26; i++) for (let k = 0; k < 4; k++) add('pit', 0, 0, z, 0, 0, 0, 'steel', { s: i / 26, z0: z, ang: k / 4 * 6.283 });
+  for (const z of [-0.05, 0.05]) for (let i = 0; i <= 18; i++) add('wire', 0, 0, z, 0, 0, 0, 'rod', { s: i / 18 });
+  for (let i = 0; i <= 22; i++) for (let k = 0; k < 3; k++) add('prod', 0, 0, 0, 0, 0, 0, 'rod', { s: i / 22, ang: k / 3 * 6.283 });
+  boxP('car', 0, 0, 0, 0.08, 0.05, 0.22, H * 0.7, 'trim');                                  // carrier bar
+  /* --- Loose particles --- */
+  for (let i = 0; i < 240; i++) { const a = Math.random() * Math.PI * 2, r = 2.3 + Math.random() * 1.2, y = -1.4 + Math.random() * 2.8; add('loose', Math.cos(a) * r, y, Math.sin(a) * r, 0, 0, 0, 'loose', { a, r, sp: (0.001 + Math.random() * 0.0025) * (Math.random() < .5 ? 1 : -1) }); }
+  pts.forEach(p => { const a = Math.random() * 6.28, b2 = Math.acos(2 * Math.random() - 1), r = 3 + Math.random() * 2.5; p.x = Math.sin(b2) * Math.cos(a) * r; p.y = Math.cos(b2) * r; p.z = Math.sin(b2) * Math.sin(a) * r; p.ox = 0; p.oy = 0; p.vx = 0; p.vy = 0; p.d = 0.018 + Math.random() * 0.025; });
 
-  let W = 0, H = 0, cx = 0, cy = 0, unit = 1, raf = 0, shown = false, col = {}, t0 = 0;
-  let yaw = 0.6, pitch = 0.42, tYawOff = 0, tPitch = 0.42, yawOff = 0;
+  let W = 0, Hh = 0, cx = 0, cy = 0, unit = 1, raf = 0, shown = false, col = {}, tStart = 0;
+  let yaw = -0.5, pitch = 0.3, yawOff = 0;
   const ptr = { x: -1e4, y: -1e4 };
   const probe = document.createElement('canvas').getContext('2d');
   const rgb = c => { probe.fillStyle = '#000'; probe.fillStyle = c || '#000'; const h = probe.fillStyle; return h[0] === '#' ? [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)) : (h.match(/\d+/g) || [0, 0, 0]).slice(0, 3).map(Number); };
-  const readCol = () => { const st = getComputedStyle(document.documentElement); col.amber = rgb(st.getPropertyValue('--amber').trim()); col.acc = rgb(st.getPropertyValue('--accent-2').trim()); col.ink = rgb(st.getPropertyValue('--ink').trim()); col.dark = document.documentElement.classList.contains('is-dark'); if (col.dark) { col.amber = [255, 170, 40]; col.acc = [60, 240, 255]; col.hoop = [255, 70, 200]; } };
+  const readCol = () => {
+    const st = getComputedStyle(document.documentElement), dark = document.documentElement.classList.contains('is-dark');
+    col.dark = dark;
+    col.steel = dark ? [255, 160, 40] : rgb(st.getPropertyValue('--amber').trim());
+    col.head = dark ? [255, 70, 200] : rgb(st.getPropertyValue('--accent').trim());
+    col.trim = dark ? [255, 235, 140] : rgb(st.getPropertyValue('--ink').trim());
+    col.rod = dark ? [60, 240, 255] : rgb(st.getPropertyValue('--accent-2').trim());
+    col.ground = dark ? [60, 240, 255] : rgb(st.getPropertyValue('--muted').trim());
+    col.loose = col.rod;
+  };
   function resize() {
     const r = box.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
-    if (!r.width) return; W = r.width; H = r.height; canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    cx = W / 2; cy = H * 0.5; unit = Math.min(W, H) * 0.25;
+    if (!r.width) return; W = r.width; Hh = r.height; canvas.width = Math.round(W * dpr); canvas.height = Math.round(Hh * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx = W / 2; cy = Hh * 0.48; unit = Math.min(W, Hh) * 0.2;
   }
-  const L = (() => { const v = [-0.5, -0.7, -0.6], n = Math.hypot(...v); return v.map(x => x / n); })();
+  const L = (() => { const v = [-0.45, -0.75, -0.5], n = Math.hypot(...v); return v.map(x => x / n); })();
+  const rot = (x, y, a, ox, oy) => { const c = Math.cos(a), s2 = Math.sin(a); return [ox + x * c - y * s2, oy + x * s2 + y * c]; };
   function draw(t) {
     const still = reduce.matches;
-    if (!t0) t0 = t;
-    const r = box.getBoundingClientRect(), inside = ptr.x > r.left - 80 && ptr.x < r.right + 80 && ptr.y > r.top - 80 && ptr.y < r.bottom + 80;
-    if (!still) {
-      yaw += 0.0045;
-      tYawOff = inside ? ((ptr.x - r.left) / r.width - 0.5) * 1.6 : 0;
-      tPitch = inside ? 0.42 - ((ptr.y - r.top) / r.height - 0.5) * 0.7 : 0.42;
-      yawOff += (tYawOff - yawOff) * 0.05; pitch += (tPitch - pitch) * 0.05;
-    }
+    if (!tStart) tStart = t;
+    const age = t - tStart, follow = Math.min(0.45, 0.02 + age / 9000);
+    const r = box.getBoundingClientRect(), inside = ptr.x > r.left - 60 && ptr.x < r.right + 60 && ptr.y > r.top - 60 && ptr.y < r.bottom + 60;
+    if (!still) { yaw += 0.0028; yawOff += ((inside ? ((ptr.x - r.left) / r.width - 0.5) * 1.4 : 0) - yawOff) * 0.04; pitch += ((inside ? 0.3 - ((ptr.y - r.top) / r.height - 0.5) * 0.6 : 0.3) - pitch) * 0.04; }
+    const th = still ? 0.6 : t * 0.0021;                     // crank angle
+    const pin = [C[0] + CR * Math.cos(th), C[1] + CR * Math.sin(th)];
+    const phi = -0.17 * Math.sin(th);                        // beam angle
+    const rear = rot(-1.3, 0, phi, O[0], O[1]);
+    const carY = O[1] + 0.25 - RH * phi;                     // carrier bar height follows the horsehead
+    const wireTop = rot(RH * Math.cos(-phi) , RH * Math.sin(-phi), 0, O[0], O[1]);
     const cyw = Math.cos(yaw + yawOff), syw = Math.sin(yaw + yawOff), cp = Math.cos(pitch), sp = Math.sin(pitch);
     const mx = ptr.x - r.left, my = ptr.y - r.top;
     for (const p of pts) {
-      let hx = p.hx, hy = p.hy, hz = p.hz;
-      if (p.kind === 'loose' && !still) { p.a += p.sp; hx = Math.cos(p.a) * p.r; hz = Math.sin(p.a) * p.r; hy = p.hy + Math.sin(t * 0.0006 + p.r * 9) * 0.15; }
-      if (still) { p.x = hx; p.y = hy; p.z = hz; } else { p.x += (hx - p.x) * p.d; p.y += (hy - p.y) * p.d; p.z += (hz - p.z) * p.d; }
+      let hx, hy, hz = p.lz, nx = p.nx, ny = p.ny, nz = p.nz;
+      switch (p.g) {
+        case 's': hx = p.lx; hy = p.ly; break;
+        case 'b': [hx, hy] = rot(p.lx, p.ly, phi, O[0], O[1]); [nx, ny] = rot(p.nx, p.ny, phi, 0, 0); break;
+        case 'k': [hx, hy] = rot(p.lx, p.ly, th, C[0], C[1]); [nx, ny] = rot(p.nx, p.ny, th, 0, 0); break;
+        case 'pit': { const a = [pin[0], pin[1]], b2 = [rear[0], rear[1] + 0.02]; const ox2 = Math.cos(p.ang) * 0.03, oy2 = Math.sin(p.ang) * 0.03; hx = a[0] + (b2[0] - a[0]) * p.s + ox2; hy = a[1] + (b2[1] - a[1]) * p.s + oy2; nx = Math.cos(p.ang); ny = Math.sin(p.ang); nz = 0; break; }
+        case 'wire': hx = O[0] + RH + 0.01; hy = O[1] + (carY - O[1]) * p.s; nx = 1; ny = 0; nz = 0; break;
+        case 'prod': hx = O[0] + RH + Math.cos(p.ang) * 0.02; hz = Math.sin(p.ang) * 0.02; hy = carY + (0.9 - carY) * p.s; nx = Math.cos(p.ang); ny = 0; nz = Math.sin(p.ang); break;
+        case 'car': hx = O[0] + RH + p.lx; hy = carY + p.ly; break;
+        default: { if (!still) p.a += p.sp; hx = Math.cos(p.a) * p.r; hz = Math.sin(p.a) * p.r; hy = p.ly + Math.sin(t * 0.0005 + p.r * 7) * 0.12; }
+      }
+      hx += 0.08;                                              // centre the unit
+      const d = p.g === 'loose' ? p.d : Math.max(p.d, follow);
+      if (still) { p.x = hx; p.y = hy; p.z = hz; } else { p.x += (hx - p.x) * d; p.y += (hy - p.y) * d; p.z += (hz - p.z) * d; }
       const x1 = p.x * cyw - p.z * syw, z1 = p.x * syw + p.z * cyw;
       const y2 = p.y * cp - z1 * sp, z2 = p.y * sp + z1 * cp;
-      const f = 7 / (7 + z2);
+      const f = 8 / (8 + z2);
       p.px = cx + x1 * unit * f; p.py = cy + y2 * unit * f; p.f = f; p.depth = z2;
-      const nx1 = p.nx * cyw - p.nz * syw, nz1 = p.nx * syw + p.nz * cyw, ny2 = p.ny * cp - nz1 * sp, nz2 = p.ny * sp + nz1 * cp;
-      p.light = p.kind === 'loose' ? 0.6 : Math.max(0, -(nx1 * L[0] + ny2 * L[1] + nz2 * L[2])) * 0.75 + 0.25;
-      p.facing = nz2;
+      const nx1 = nx * cyw - nz * syw, nz1 = nx * syw + nz * cyw, ny2 = ny * cp - nz1 * sp, nz2 = ny * sp + nz1 * cp;
+      p.light = (p.g === 'loose' || p.kind === 'ground') ? 0.6 : Math.abs(nx1 * L[0] + ny2 * L[1] + nz2 * L[2]) * 0.7 + 0.3;
       if (!still) {
         const dx = p.px + p.ox - mx, dy = p.py + p.oy - my, d2 = dx * dx + dy * dy;
-        if (d2 < 6400) { const d = Math.sqrt(d2) || 1, k = (1 - d / 80) * 2.2; p.vx += dx / d * k; p.vy += dy / d * k; }
+        if (d2 < 6400) { const dd = Math.sqrt(d2) || 1, k = (1 - dd / 80) * 2; p.vx += dx / dd * k; p.vy += dy / dd * k; }
         p.vx += -p.ox * 0.08; p.vy += -p.oy * 0.08; p.vx *= 0.82; p.vy *= 0.82; p.ox += p.vx; p.oy += p.vy;
       }
     }
-    pts.sort((a, b) => b.depth - a.depth);
-    ctx.clearRect(0, 0, W, H);
+    pts.sort((a, b2) => b2.depth - a.depth);
+    ctx.clearRect(0, 0, W, Hh);
     ctx.globalCompositeOperation = col.dark ? 'lighter' : 'source-over';
+    const zs = (W / 360) ** 0.35;
     for (const p of pts) {
-      const back = p.kind !== 'loose' && p.facing > 0.15;
-      let c, a;
-      if (p.kind === 'loose') { c = col.acc; a = 0.35 + 0.35 * (p.f - 0.6); }
-      else if (p.kind === 'hoop') { c = col.dark ? col.hoop : col.ink; a = (back ? 0.16 : 0.5 + 0.45 * p.light); }
-      else { c = col.amber; a = back ? 0.14 : 0.35 + 0.65 * p.light; }
-      const z = (p.kind === 'loose' ? 1.8 : (p.kind === 'hoop' ? 2.1 : 1.9)) * (W / 360) ** 0.35 * p.f * (back ? 0.8 : 1.15);
+      const c = col[p.kind] || col.steel;
+      const fog = Math.max(0.35, Math.min(1, 1.15 - (p.depth + 2) * 0.12));
+      let a;
+      if (p.kind === 'loose') a = 0.3 + 0.35 * (p.f - 0.7);
+      else if (p.kind === 'ground') a = col.dark ? 0.18 : 0.22;
+      else a = (0.3 + 0.7 * p.light) * fog * (col.dark ? 0.8 : 0.85);
+      const z = (p.kind === 'ground' ? 1.2 : p.kind === 'loose' ? 1.6 : p.kind === 'rod' ? 1.5 : 1.55) * zs * p.f;
       ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${Math.max(0, Math.min(1, a))})`;
-      ctx.beginPath(); ctx.arc(p.px + p.ox, p.py + p.oy, z / 2, 0, 6.2832); ctx.fill();
+      ctx.fillRect(p.px + p.ox - z / 2, p.py + p.oy - z / 2, z, z);
     }
   }
   const frame = t => { raf = 0; if (!shown || document.hidden) return; draw(t); if (!reduce.matches) raf = requestAnimationFrame(frame); };
