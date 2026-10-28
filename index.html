@@ -7,7 +7,7 @@
 <script>try { const t = localStorage.getItem('tema'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <meta name="description" content="Cuestionario de evaluación de la visita guiada al Taladro Escuela San Tomé.">
 <meta property="og:title" content="Evaluación · Taladro Escuela San Tomé">
-<meta property="og:description" content="Cuestionario para participantes de la visita guiada (maestría y pregrado).">
+<meta property="og:description" content="Cuestionario para participantes de la visita guiada (UCV, UCAB y UNIMET).">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -206,6 +206,8 @@ body.compact main .wrap { padding-top: 24px; }
 .group-card::after { content: ""; position: absolute; width: 220px; height: 220px; right: -90px; top: -110px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--tone) 18%, transparent), transparent); transition: transform .5s var(--ease); pointer-events: none; }
 .group-card[data-tone="maestria"] { --tone: var(--accent-2); --tone-soft: var(--accent-soft); }
 .group-card[data-tone="pregrado"] { --tone: var(--amber); --tone-soft: var(--amber-soft); }
+.group-card[data-tone="ucab"] { --tone: #1f9d78; --tone-soft: color-mix(in srgb, #1f9d78 16%, var(--surface)); }
+.group-card[data-tone="unimet"] { --tone: #8a5bd6; --tone-soft: color-mix(in srgb, #8a5bd6 16%, var(--surface)); }
 .group-card.soon { --tone: var(--line); --tone-soft: var(--surface-2); cursor: default; background: color-mix(in srgb, var(--surface) 70%, var(--bg)); border-style: dashed; }
 .group-card.soon::before { background: repeating-linear-gradient(135deg, var(--muted) 0 8px, transparent 8px 16px); opacity: .35; }
 .group-card.soon::after { display: none; }
@@ -538,7 +540,7 @@ td.heat { text-align: center; font-weight: 700; font-variant-numeric: tabular-nu
       <div class="eyebrow">Visitas guiadas al taladro</div>
       <h1>Taladro Escuela <span>San Tomé</span></h1>
       <p>Evaluación de la visita guiada. Cuéntenos qué aprendió en cada parada del recorrido.</p>
-      <ul class="hero-meta"><li><b>7</b> paradas</li><li><b>2</b> grupos</li><li><b>≈ 15</b> minutos</li></ul>
+      <ul class="hero-meta"><li><b>7</b> paradas</li><li><b>4</b> grupos</li><li><b>≈ 15</b> minutos</li></ul>
     </div>
     <section class="vz" id="vzmap" aria-label="Mapa petrolero de Venezuela">
       <div class="vz-top">
@@ -660,6 +662,7 @@ const AYUDA_F = 'Insumo: su punto de partida. Producto: lo que obtuvo de inmedia
 const GRUPOS = {
   maestria: {
     corto: 'Maestría',
+    uni: 'UCV', icon: 'chart', d1Titulo: 'Negocio y aplicación', horasLbl: 'formación en perforación',
     nombre: 'Maestría en Economía y Administración de Hidrocarburos',
     desc: 'Profesionales de ingeniería, derecho, economía y administración. Mide comprensión del negocio de la perforación y aplicación profesional.',
     seg: { id: 'A2', label: 'Formación de base' },
@@ -749,6 +752,7 @@ const GRUPOS = {
 
   pregrado: {
     corto: 'Pregrado',
+    uni: 'UCV', icon: 'pumpjack', d1Titulo: 'Avance académico', horasLbl: 'práctica en campo',
     nombre: 'Pregrado · Escuela de Ingeniería de Petróleo',
     desc: 'Estudiantes de inicio, mitad y final de carrera. Mide conocimiento técnico del taladro y aporte al avance académico.',
     seg: { id: 'A3', label: 'Etapa de la carrera', item: { id: 'A3', t: 'single', op: ETAPAS } },
@@ -833,6 +837,169 @@ const GRUPOS = {
           P('F3_2', 'F3.2 ¿Cómo cree que formar ingenieros en el Taladro Escuela puede impactar al sector y al país (empleo, producción, seguridad, retención de talento)?')
         ] },
       stepComentarios('¿Qué equipo o proceso le hubiera gustado ver con más detalle?', '¿Qué cambiaría para mejorar la próxima visita?')
+    ]
+  },
+
+  ucab: {
+    corto: 'UCAB · Derecho',
+    uni: 'UCAB', icon: 'flame', d1Titulo: 'Aplicación jurídica', horasLbl: 'formación en operaciones petroleras',
+    nombre: 'Programa de Petróleo y Gas',
+    desc: 'Abogados del postgrado de la Universidad Católica Andrés Bello. Mide comprensión de la operación y sus implicaciones jurídicas.',
+    seg: { id: 'A4', label: 'Área del derecho' },
+    pasos: [
+      { titulo: 'Perfil del participante', ayuda: 'Datos básicos para analizar los resultados por perfil.',
+        items: [
+          CS('CONS'),
+          TX('A1', 'A1. Nombre y apellido', { req: true, auto: 'name' }),
+          TX('A1c', 'A1b. Número de cédula', { req: true, kind: 'cedula', help: 'Solo números, sin puntos. Ej.: 12345678' }),
+          S('A2', 'A2. ¿En qué etapa del programa se encuentra?', ['Aspirante', 'Cursando materias', 'Trabajo de grado', 'Egresado']),
+          S('A3', 'A3. Años de ejercicio profesional', ['Menos de 2', '2–5', '6–10', 'Más de 10']),
+          S('A4', 'A4. Área del derecho en la que trabaja o quiere trabajar', ['Corporativo y contratos', 'Administrativo y regulatorio', 'Laboral', 'Ambiental', 'Tributario', 'Arbitraje y litigio', 'Sector público'], { otra: true }),
+          S('A5', 'A5. Antes de esta visita, ¿había estado en un taladro de perforación (real o escuela)?', ['Nunca', 'Una vez', 'Varias veces']),
+          S('A6', 'A6. ¿Ha trabajado en asuntos legales del sector hidrocarburos?', ['No', 'Ocasionalmente', 'Es parte habitual de mi trabajo']),
+          MU('A7', 'A7. ¿Cuáles eran sus expectativas antes de la visita? (puede marcar varias)', ['Entender la operación que regulan los contratos', 'Conocer los riesgos que generan responsabilidad', 'Ver cómo se aplican las normas de seguridad y ambiente', 'Conocer la formación y certificación del personal', 'Hacer contactos profesionales'], { otra: true, req: true })
+        ] },
+      { titulo: 'Antes y después', ayuda: 'Para cada tema, califique cómo estaba ANTES de la visita y cómo está HOY. 1 = no sabía nada del tema; 5 = podría explicarlo con seguridad a un colega.',
+        items: [ M('B', 'Su nivel en cada tema', [
+          'B1. Historia de los primeros pozos petroleros de Venezuela',
+          'B2. Uso de asistentes virtuales e inteligencia artificial en la industria',
+          'B3. Componentes principales de un taladro (mechas, válvulas, preventores)',
+          'B4. Exploración sísmica y cómo se ubica el petróleo bajo tierra',
+          'B5. Cementación de pozos y control de calidad del cemento',
+          'B6. Uso de simuladores para entrenar y reducir riesgos',
+          'B7. Fases de la operación de un pozo y quién interviene en cada una',
+          'B8. Relación entre operadora, contratista de perforación y empresas de servicio',
+          'B9. Riesgos de la operación que pueden generar responsabilidad (reventones, derrames, accidentes)',
+          'B10. Normas de seguridad, salud y ambiente en un taladro',
+          'B11. Organización del trabajo en el taladro: cuadrillas, turnos, cargos y certificaciones',
+          'B12. Marco regulatorio de las actividades de perforación en Venezuela',
+          'B13. Capacidad para conversar con ingenieros sobre la operación',
+          'B14. Confianza para asesorar o redactar un contrato vinculado a la perforación'
+        ], ['Antes', 'Hoy']) ] },
+      { titulo: 'Calificación de las paradas', ayuda: 'Califique cada parada de 1 (muy bajo) a 5 (muy alto) en tres aspectos.',
+        items: [ M('C0', 'Cada parada de la visita', PARADAS_N, ['Claridad', 'Utilidad', 'Jurídico'], { help: 'Claridad de la explicación · Utilidad para mi perfil · Me ayudó a identificar obligaciones, riesgos o normas' }) ] },
+      { titulo: 'Aplicación jurídica', ayuda: '1 = totalmente en desacuerdo; 5 = totalmente de acuerdo.',
+        items: [
+          M('D1', 'D1. Indique su grado de acuerdo', [
+            'D1.1 Ahora entiendo mejor las actividades que regulan los contratos de perforación y servicios.',
+            'D1.2 Puedo identificar qué parte asume cada riesgo en la operación de un taladro.',
+            'D1.3 Entiendo por qué la seguridad operacional y ambiental genera obligaciones legales concretas.',
+            'D1.4 Entiendo cómo la formación y certificación del personal se relaciona con las obligaciones del empleador.',
+            'D1.5 Conocer la operación me permitirá redactar o revisar contratos con más precisión.',
+            'D1.6 Lo aprendido me será útil en mi ejercicio profesional o en mis estudios.',
+            'D1.7 La visita mejoró mis perspectivas de trabajar en derecho de hidrocarburos.',
+            'D1.8 Lo visto en la visita tiene poca relación con el trabajo de un abogado.'
+          ], ['Acuerdo'], { na: true, rev: [7], help: '1 = totalmente en desacuerdo · 5 = totalmente de acuerdo · Marque «No aplica» si no corresponde a su caso.' }),
+          MU('D2', 'D2. ¿En qué áreas aplicaría primero lo aprendido? (puede marcar varias)', ['Contratos de perforación y servicios', 'Permisos y regulación', 'Laboral y seguridad social', 'Ambiental', 'Responsabilidad civil y seguros', 'Tributario', 'Arbitraje y resolución de disputas', 'Contratación con el Estado'], { otra: true }),
+          S('D3', 'D3. Después de ver la operación, ¿qué cláusula le parece más crítica en un contrato de perforación?', ['Tarifa diaria y tiempo no productivo', 'Responsabilidad e indemnidad por daños', 'Seguridad, salud y ambiente', 'Personal y subcontratación', 'Seguros y garantías', 'Terminación y fuerza mayor'], { otra: true }),
+          P('D4', 'D4. Describa una situación de la operación que vio en la visita y que podría dar lugar a un conflicto legal. ¿Quiénes intervendrían?'),
+          P('D5', 'D5. ¿Qué información técnica le faltó para entender las implicaciones jurídicas de la operación?')
+        ] },
+      stepsExperiencia('Adaptación de las explicaciones a un público jurídico', 'A7', '¿Cuál fue la parada menos útil para su perfil?', 'Del 0 al 10, ¿qué tan probable es que recomiende esta visita a un colega abogado o a otra cohorte del programa?', 'Ninguna, todas me sirvieron'),
+      { titulo: 'Insumo, producto y resultado', ayuda: AYUDA_F,
+        items: [
+          H('Insumo'),
+          S('F1_1', 'F1.1 Antes de la visita, ¿cuántas horas de formación sobre operaciones petroleras había recibido en el programa?', ['0', '1–10', '11–30', 'Más de 30']),
+          SC('F1_2', 'F1.2 Antes de la visita, ¿cómo calificaría su conocimiento general sobre un taladro de perforación?', 1, 10, 'Nulo', 'Experto'),
+          MU('F1_3', 'F1.3 ¿Qué recursos de la visita contribuyeron más a su aprendizaje? (marque hasta tres)', ['Explicaciones de los guías', 'Asistentes virtuales', 'Equipos físicos exhibidos', 'Laboratorio de cementación', 'Recorrido por el taladro completo', 'Simulador de perforación', 'Conversación con ingenieros y personal del taladro'], { lim: 3, req: true }),
+          H('Producto'),
+          SC('F2_1', 'F2.1 Hoy, ¿cómo calificaría su conocimiento general sobre un taladro de perforación?', 1, 10, 'Nulo', 'Experto'),
+          S('F2_2', 'F2.2 ¿Qué porcentaje del contenido presentado siente que comprendió?', F22),
+          S('F2_3', 'F2.3 ¿Cuántos términos técnicos nuevos podría usar hoy con precisión en un documento legal?', ['0', '1–2', '3–5', 'Más de 5']),
+          H('Resultado'),
+          M('F3_1', 'F3.1 ¿Qué tan probable es que haga lo siguiente en los próximos 6 meses? (1 = nada probable; 5 = muy probable)', [
+            'Usar lo aprendido en un caso, contrato o dictamen',
+            'Compartir lo aprendido con colegas o con su despacho',
+            'Elegir un tema de investigación o trabajo de grado en derecho de hidrocarburos',
+            'Inscribirse en un curso o certificación del Taladro Escuela',
+            'Recomendar a su organización un curso o certificación del Taladro Escuela',
+            'Proponer un convenio entre su universidad u organización y el Taladro Escuela',
+            'Buscar un cargo legal en una empresa del sector hidrocarburos'
+          ], ['Probabilidad']),
+          P('F3_2', 'F3.2 ¿Cómo puede la formación de talento en el Taladro Escuela contribuir a la seguridad jurídica, la seguridad operacional y la inversión en el sector?')
+        ] },
+      stepComentarios('¿Qué tema le hubiera gustado ver con más profundidad?', '¿Qué cambiaría para mejorar la próxima visita?')
+    ]
+  },
+
+  unimet: {
+    corto: 'UNIMET · Refinación',
+    uni: 'UNIMET', icon: 'refinery', d1Titulo: 'Aplicación en procesos', horasLbl: 'formación en perforación y producción',
+    nombre: 'Maestría en Refinación de Petróleo, Gas y Petroquímica',
+    desc: 'Ingenieros químicos y de procesos de la Universidad Metropolitana. Mide la visión del pozo como origen de la cadena de refinación.',
+    seg: { id: 'A4', label: 'Área de trabajo' },
+    pasos: [
+      { titulo: 'Perfil del participante', ayuda: 'Datos básicos para analizar los resultados por perfil.',
+        items: [
+          CS('CONS'),
+          TX('A1', 'A1. Nombre y apellido', { req: true, auto: 'name' }),
+          TX('A1c', 'A1b. Número de cédula', { req: true, kind: 'cedula', help: 'Solo números, sin puntos. Ej.: 12345678' }),
+          S('A2', 'A2. Formación de pregrado', ['Ingeniería química', 'Ingeniería de petróleo', 'Química', 'Ingeniería mecánica o industrial'], { otra: true }),
+          S('A3', 'A3. Años de experiencia laboral', ['0–2', '3–5', '6–10', 'Más de 10']),
+          S('A4', 'A4. Área en la que trabaja actualmente', ['Refinación', 'Procesamiento de gas', 'Petroquímica', 'Exploración y producción', 'Laboratorio y control de calidad', 'Académico', 'No trabajo actualmente'], { otra: true }),
+          S('A5', 'A5. Antes de esta visita, ¿había estado en un taladro de perforación (real o escuela)?', ['Nunca', 'Una vez', 'Varias veces', 'Trabajo o trabajé en uno']),
+          S('A6', 'A6. ¿En qué etapa de la maestría se encuentra?', ['Aspirante', 'Primer año', 'Segundo año', 'Trabajo de grado', 'Egresado']),
+          MU('A7', 'A7. ¿Cuáles eran sus expectativas antes de la visita? (puede marcar varias)', ['Conocer el origen del crudo que procesa una refinería', 'Ver el laboratorio y el control de calidad', 'Relacionar la operación del pozo con mi disciplina', 'Conocer la formación y certificación del Taladro Escuela', 'Hacer contactos profesionales'], { otra: true, req: true })
+        ] },
+      { titulo: 'Antes y después', ayuda: 'Para cada tema, califique cómo estaba ANTES de la visita y cómo está HOY. 1 = no sabía nada del tema; 5 = podría explicarlo con seguridad a un colega.',
+        items: [ M('B', 'Su nivel en cada tema', [
+          'B1. Historia de los primeros pozos petroleros de Venezuela',
+          'B2. Uso de asistentes virtuales e inteligencia artificial en la industria',
+          'B3. Componentes principales de un taladro (mechas, válvulas, preventores)',
+          'B4. Exploración sísmica y cómo se ubica el petróleo bajo tierra',
+          'B5. Cementación de pozos y control de calidad del cemento',
+          'B6. Uso de simuladores para entrenar y reducir riesgos',
+          'B7. Composición y propiedades del lodo de perforación (densidad, viscosidad, aditivos)',
+          'B8. Química del cemento y pruebas de laboratorio (fraguado, resistencia)',
+          'B9. Trazabilidad de muestras y registros de laboratorio',
+          'B10. Control de pozos y manejo de la presión',
+          'B11. Recorrido del crudo desde el yacimiento hasta la carga de una refinería',
+          'B12. Capacidad para relacionar lo que ocurre en el pozo con la operación de una planta de proceso',
+          'B13. Capacidad para conversar con perforadores sobre la operación',
+          'B14. Interés en trabajar en la integración entre producción y refinación'
+        ], ['Antes', 'Hoy']) ] },
+      { titulo: 'Calificación de las paradas', ayuda: 'Califique cada parada de 1 (muy bajo) a 5 (muy alto) en tres aspectos.',
+        items: [ M('C0', 'Cada parada de la visita', PARADAS_N, ['Claridad', 'Utilidad', 'Refinación'], { help: 'Claridad de la explicación · Utilidad para mi perfil · Relación con refinación, gas o petroquímica' }) ] },
+      { titulo: 'Aplicación en procesos', ayuda: '1 = totalmente en desacuerdo; 5 = totalmente de acuerdo.',
+        items: [
+          M('D1', 'D1. Indique su grado de acuerdo', [
+            'D1.1 Ahora entiendo mejor de dónde viene y cómo se obtiene el crudo que procesa una refinería.',
+            'D1.2 Puedo relacionar la química del lodo y del cemento con conceptos de mi formación.',
+            'D1.3 Veo paralelos entre el control de pozos y la seguridad de procesos en una planta.',
+            'D1.4 Las prácticas de laboratorio y trazabilidad que vi son comparables con las de una refinería.',
+            'D1.5 Después de la visita valoro más la coordinación entre producción y refinación.',
+            'D1.6 Lo aprendido me será útil en mi trabajo actual.',
+            'D1.7 Lo aprendido me ayudará en mi trabajo de grado de la maestría.',
+            'D1.8 La visita aportó poco a mi formación en refinación.'
+          ], ['Acuerdo'], { na: true, rev: [7], rowIf: { 6: { q: 'A6', notIn: ['Aspirante', 'Egresado'] } }, help: '1 = totalmente en desacuerdo · 5 = totalmente de acuerdo · Marque «No aplica» si no corresponde a su caso.' }),
+          MU('D2', 'D2. ¿En qué áreas aplicaría primero lo aprendido? (puede marcar varias)', ['Control de calidad y laboratorio', 'Seguridad de procesos y gestión de riesgos', 'Selección y planificación de crudos', 'Química de fluidos y aditivos', 'Formación y simuladores para operadores de planta', 'Integración entre producción y refinación', 'Trabajo de grado o investigación'], { otra: true }),
+          P('D3', 'D3. ¿Qué concepto de ingeniería química reconoció en la operación del taladro (por ejemplo reología, transferencia de calor, cinética, balance de masa)? Explique dónde lo vio.'),
+          S('D4', 'D4. ¿Qué módulo le gustaría que el Taladro Escuela agregara para perfiles de refinación?', ['Caracterización de crudos, con muestras desde condensado hasta extrapesado', 'Tratamiento del crudo en superficie (separación y deshidratación)', 'Química de fluidos y aditivos', 'Simulación de control de pozos y seguridad de procesos', 'Medición y fiscalización de crudo'], { otra: true })
+        ] },
+      stepsExperiencia('Adaptación de las explicaciones a un público de procesos y refinación', 'A7', '¿Cuál fue la parada menos útil para su perfil?', 'Del 0 al 10, ¿qué tan probable es que recomiende esta visita a un colega o a otra cohorte de la maestría?', 'Ninguna, todas me sirvieron'),
+      { titulo: 'Insumo, producto y resultado', ayuda: AYUDA_F,
+        items: [
+          H('Insumo'),
+          S('F1_1', 'F1.1 Antes de la visita, ¿cuántas horas de formación sobre perforación y producción había recibido en la maestría?', ['0', '1–10', '11–30', 'Más de 30']),
+          SC('F1_2', 'F1.2 Antes de la visita, ¿cómo calificaría su conocimiento general sobre un taladro de perforación?', 1, 10, 'Nulo', 'Experto'),
+          MU('F1_3', 'F1.3 ¿Qué recursos de la visita contribuyeron más a su aprendizaje? (marque hasta tres)', ['Explicaciones de los guías', 'Asistentes virtuales', 'Equipos físicos exhibidos', 'Laboratorio de cementación', 'Recorrido por el taladro completo', 'Simulador de perforación', 'Intercambio con compañeros'], { lim: 3, req: true }),
+          H('Producto'),
+          SC('F2_1', 'F2.1 Hoy, ¿cómo calificaría su conocimiento general sobre un taladro de perforación?', 1, 10, 'Nulo', 'Experto'),
+          S('F2_2', 'F2.2 ¿Qué porcentaje del contenido presentado siente que comprendió?', F22),
+          S('F2_3', 'F2.3 ¿Cuántos paralelos entre la operación del taladro y una planta de proceso podría explicar hoy?', ['0', '1–2', '3–5', 'Más de 5']),
+          H('Resultado'),
+          M('F3_1', 'F3.1 ¿Qué tan probable es que haga lo siguiente en los próximos 6 meses? (1 = nada probable; 5 = muy probable)', [
+            'Aplicar lo aprendido en una tarea o decisión de su trabajo',
+            'Compartir lo aprendido con su equipo u organización',
+            'Elegir un trabajo de grado que vincule producción y refinación',
+            'Inscribirse en un curso o certificación del Taladro Escuela',
+            'Recomendar a su organización un curso o certificación del Taladro Escuela',
+            'Proponer un convenio entre su organización y el Taladro Escuela',
+            'Participar en una visita a un campo de producción o a un mejorador'
+          ], ['Probabilidad']),
+          P('F3_2', 'F3.2 ¿Cómo puede la formación de talento en el Taladro Escuela beneficiar a toda la cadena, desde el pozo hasta la refinería?')
+        ] },
+      stepComentarios('¿Qué tema le hubiera gustado ver con más profundidad?', '¿Qué cambiaría para mejorar la próxima visita?')
     ]
   }
 };
@@ -939,10 +1106,11 @@ function renderStatus() {
 /* ------------------------------------------------------------------ */
 const svgI = d => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
 /* Upcoming visits: shown on the start screen as "coming soon" cards until their questionnaires exist. */
-const PROXIMOS = [
+const PROXIMOS_ANTES = [
   { uni: 'UCAB', icon: 'flame', nombre: 'Programa de Petróleo y Gas', desc: 'Estudiantes de la Universidad Católica Andrés Bello. El cuestionario se habilitará después de la visita.' },
   { uni: 'UNIMET', icon: 'refinery', nombre: 'Maestría en Refinación de Petróleo, Gas y Petroquímica', desc: 'Estudiantes de la Universidad Metropolitana. El cuestionario se habilitará después de la visita.' }
 ];
+const PROXIMOS = [];
 const ICON = {
   flame: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 29c-5 0-9-3.6-9-8.6 0-4.6 3.4-7.3 5-11.4 1.6 2 2.4 3.7 2.6 5.6 1.4-1.6 2.2-3.9 2.2-6.6 4.8 3 8.2 7.9 8.2 12.4 0 5-4 8.6-9 8.6z"/><path d="M16 29c-2.2 0-3.8-1.5-3.8-3.6 0-2.3 1.9-3.6 3.8-6 1.9 2.4 3.8 3.7 3.8 6 0 2.1-1.6 3.6-3.8 3.6z"/></svg>',
   refinery: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 28h26"/><path d="M6 28V14h5v14M13 28V9h5v19M21 28V17h7v11"/><path d="M15.5 9V4M8.5 14v-3M25 17v-4"/><path d="M15.5 4c1.6-.2 2.6.6 3.5 1.6"/></svg>',
@@ -1016,7 +1184,7 @@ function chooserView() {
     </div>` : '';
   const cards = Object.entries(GRUPOS).map(([k, g], i) => `
     <button class="group-card" data-g="${k}" data-tone="${k}" style="--i:${i}">
-      <span class="gc-top"><span class="gc-icon">${k === 'maestria' ? ICON.chart : ICON.pumpjack}</span><span class="gc-tag">UCV</span></span>
+      <span class="gc-top"><span class="gc-icon">${ICON[g.icon]}</span><span class="gc-tag">${esc(g.uni)}</span></span>
       <span class="n">${esc(g.nombre)}</span>
       <span class="d">${esc(g.desc)}</span>
       <span class="gc-meta"><span>${g.pasos.length} etapas (A–${LET[g.pasos.length - 1]})</span><span>≈ 15 min</span><span>${allItems(k).filter(i => i.t !== 'consent').length} preguntas</span></span>
@@ -1551,14 +1719,12 @@ function renderResultados() {
   const g = resGrupo;
   const G = GRUPOS[g];
   const rows = all.filter(x => x.grupo === g).sort((a, b) => String(b.enviado).localeCompare(String(a.enviado)));
-  const nM = all.filter(x => x.grupo === 'maestria').length, nP = all.filter(x => x.grupo === 'pregrado').length;
 
   const head = `<div class="res-head">
     <div><h2>Resultados</h2><p>${all.length} respuesta${all.length === 1 ? '' : 's'} registrada${all.length === 1 ? '' : 's'} <span class="updated">· actualizado ${updatedAt ? updatedAt.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' }) : ''}</span></p></div>
     <div class="res-actions">
       <div class="toggle" role="group" aria-label="Grupo">
-        <button data-rg="maestria" aria-pressed="${g === 'maestria'}">Maestría (${nM})</button>
-        <button data-rg="pregrado" aria-pressed="${g === 'pregrado'}">Pregrado (${nP})</button>
+        ${Object.entries(GRUPOS).map(([k, gg]) => `<button data-rg="${k}" aria-pressed="${g === k}">${esc(gg.uni === 'UCV' ? gg.corto : gg.uni)} (${all.filter(x => x.grupo === k).length})</button>`).join('')}
       </div>
       <button class="btn sm" id="refresh">Actualizar</button>
       <button class="btn sm" id="csv" ${all.length ? '' : 'disabled'}>Exportar CSV</button>
@@ -1588,7 +1754,7 @@ function renderResultados() {
       <div><dt>Conocimiento previo (1–10)</dt><dd>${f1(a.f12)}</dd></div>
       <div><dt>Nivel medio en los temas, antes (1–5)</dt><dd>${f1(a.bAntesM)}</dd></div>
       <div><dt>Nunca había visitado un taladro</dt><dd>${pct(a.nunca)}</dd></div>
-      <div><dt>Sin horas previas de ${g === 'maestria' ? 'formación en perforación' : 'práctica en campo'}</dt><dd>${pct(a.sinHoras)}</dd></div>
+      <div><dt>Sin horas previas de ${esc(G.horasLbl)}</dt><dd>${pct(a.sinHoras)}</dd></div>
       <div><dt>Recurso más valorado</dt><dd>${esc(a.recursos[0] && a.recursos[0][1] ? a.recursos[0][0] : '—')}</dd></div>
     </dl></div>
     <div><h3>Producto <small>Al salir</small></h3><p class="lead">Lo que obtuvieron de inmediato.</p><dl>
@@ -1620,7 +1786,7 @@ function renderResultados() {
 
   const f31Panel = `<div class="panel"><h3>Resultado esperado</h3><p class="sub">Porcentaje que califica cada acción con 4 o 5 (probable en los próximos 6 meses).</p>
     ${hbars(items.F3_1.rows.map((r, i) => [r, a.f31[i]]), 1, pct)}</div>`;
-  const d1Panel = `<div class="panel"><h3>${g === 'maestria' ? 'Negocio y aplicación' : 'Avance académico'}</h3><p class="sub">Grado de acuerdo medio, escala 1–5.</p>
+  const d1Panel = `<div class="panel"><h3>${esc(G.d1Titulo)}</h3><p class="sub">Grado de acuerdo medio, escala 1–5.</p>
     ${hbars(items.D1.rows.map((r, i) => [r.replace(/^D1\.\d+\s*/, '') + ((items.D1.rev || []).includes(i) ? ' (en negativo: menos es mejor)' : ''), a.d1[i]]), 5, f1)}</div>`;
   const e1Panel = `<div class="panel"><h3>Experiencia</h3><p class="sub">Calificación media de 1 a 5.</p>
     ${hbars(items.E1.rows.map((r, i) => [r, a.e1[i]]), 5, f1)}</div>`;
