@@ -200,11 +200,20 @@ body.compact main .wrap { padding-top: 24px; }
 .choose-head h2 { font-size: clamp(32px, 5vw, 44px); text-transform: uppercase; margin-top: 6px; }
 .choose-head p { color: var(--ink-2); margin: 8px 0 0; max-width: 60ch; font-size: 17px; }
 .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; }
+@media (min-width: 720px) { .groups { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .group-card { position: relative; overflow: hidden; text-align: left; appearance: none; border: 1px solid var(--line); background: var(--surface); border-radius: 20px; padding: 24px 24px 22px; cursor: pointer; display: grid; gap: 12px; align-content: start; box-shadow: var(--shadow); transition: transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s; animation: rise .6s var(--ease) both; animation-delay: calc(var(--i, 0) * 90ms + 80ms); }
 .group-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--tone); }
 .group-card::after { content: ""; position: absolute; width: 220px; height: 220px; right: -90px; top: -110px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--tone) 18%, transparent), transparent); transition: transform .5s var(--ease); pointer-events: none; }
 .group-card[data-tone="maestria"] { --tone: var(--accent-2); --tone-soft: var(--accent-soft); }
 .group-card[data-tone="pregrado"] { --tone: var(--amber); --tone-soft: var(--amber-soft); }
+.group-card.soon { --tone: var(--line); --tone-soft: var(--surface-2); cursor: default; background: color-mix(in srgb, var(--surface) 70%, var(--bg)); border-style: dashed; }
+.group-card.soon::before { background: repeating-linear-gradient(135deg, var(--muted) 0 8px, transparent 8px 16px); opacity: .35; }
+.group-card.soon::after { display: none; }
+.group-card.soon:hover, .group-card.soon:active { transform: none; box-shadow: none; border-color: var(--line); }
+.group-card.soon .gc-icon { color: var(--muted); }
+.group-card.soon .n { color: var(--ink-2); }
+.group-card.soon .d { color: var(--muted); }
+.group-card.soon .gc-cta { color: var(--muted); font-weight: 600; font-size: 14px; }
 .group-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: color-mix(in srgb, var(--tone) 45%, var(--line)); }
 .group-card:hover::after { transform: scale(1.25); }
 .group-card:active { transform: translateY(-1px) scale(.99); }
@@ -929,7 +938,14 @@ function renderStatus() {
 /* Responder                                                           */
 /* ------------------------------------------------------------------ */
 const svgI = d => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+/* Upcoming visits: shown on the start screen as "coming soon" cards until their questionnaires exist. */
+const PROXIMOS = [
+  { uni: 'UCAB', icon: 'flame', nombre: 'Programa de Petróleo y Gas', desc: 'Estudiantes de la Universidad Católica Andrés Bello. El cuestionario se habilitará antes de la visita.' },
+  { uni: 'UNIMET', icon: 'refinery', nombre: 'Maestría en Refinación de Petróleo, Gas y Petroquímica', desc: 'Estudiantes de la Universidad Metropolitana. El cuestionario se habilitará antes de la visita.' }
+];
 const ICON = {
+  flame: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 29c-5 0-9-3.6-9-8.6 0-4.6 3.4-7.3 5-11.4 1.6 2 2.4 3.7 2.6 5.6 1.4-1.6 2.2-3.9 2.2-6.6 4.8 3 8.2 7.9 8.2 12.4 0 5-4 8.6-9 8.6z"/><path d="M16 29c-2.2 0-3.8-1.5-3.8-3.6 0-2.3 1.9-3.6 3.8-6 1.9 2.4 3.8 3.7 3.8 6 0 2.1-1.6 3.6-3.8 3.6z"/></svg>',
+  refinery: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 28h26"/><path d="M6 28V14h5v14M13 28V9h5v19M21 28V17h7v11"/><path d="M15.5 9V4M8.5 14v-3M25 17v-4"/><path d="M15.5 4c1.6-.2 2.6.6 3.5 1.6"/></svg>',
   arrow: svgI('<path d="M5 12h14M13 6l6 6-6 6"/>'),
   back: svgI('<path d="M19 12H5M11 6l-6 6 6 6"/>'),
   check: svgI('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
@@ -1000,12 +1016,19 @@ function chooserView() {
     </div>` : '';
   const cards = Object.entries(GRUPOS).map(([k, g], i) => `
     <button class="group-card" data-g="${k}" data-tone="${k}" style="--i:${i}">
-      <span class="gc-top"><span class="gc-icon">${k === 'maestria' ? ICON.chart : ICON.pumpjack}</span></span>
+      <span class="gc-top"><span class="gc-icon">${k === 'maestria' ? ICON.chart : ICON.pumpjack}</span><span class="gc-tag">UCV</span></span>
       <span class="n">${esc(g.nombre)}</span>
       <span class="d">${esc(g.desc)}</span>
       <span class="gc-meta"><span>${g.pasos.length} etapas (A–${LET[g.pasos.length - 1]})</span><span>≈ 15 min</span><span>${allItems(k).filter(i => i.t !== 'consent').length} preguntas</span></span>
       <span class="gc-cta">Comenzar ${ICON.arrow}</span>
-    </button>`).join('');
+    </button>`).join('') + PROXIMOS.map((g, i) => `
+    <div class="group-card soon" data-tone="soon" style="--i:${2 + i}" aria-disabled="true">
+      <span class="gc-top"><span class="gc-icon">${ICON[g.icon]}</span><span class="gc-tag">${esc(g.uni)}</span></span>
+      <span class="n">${esc(g.nombre)}</span>
+      <span class="d">${esc(g.desc)}</span>
+      <span class="gc-meta"><span>Próxima visita</span></span>
+      <span class="gc-cta soon-cta">Disponible pronto</span>
+    </div>`).join('');
   return `<div class="choose">
     ${draftHtml}
     <div class="choose-head anim-in"><span class="kicker">Antes de empezar</span><h2>¿A qué grupo pertenece?</h2><p>Elija su programa para abrir el cuestionario que le corresponde.</p></div>
@@ -1018,7 +1041,7 @@ function chooserView() {
   </div>`;
 }
 function bindChooser() {
-  document.querySelectorAll('.group-card').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.group-card[data-g]').forEach(b => b.addEventListener('click', () => {
     b.classList.add('picked'); buzz(10);
     setTimeout(() => {
       store.del(DRAFT_KEY);
