@@ -159,13 +159,14 @@ svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor;
   .hero-copy p { font-size: 16px; }
 }
 
+main { overflow-x: clip; }
 main .wrap { padding-block: 32px 72px; position: relative; }
-.morph { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: min(760px, 96%); aspect-ratio: 1; pointer-events: none; z-index: 0; opacity: 0; transition: opacity .8s var(--ease); }
+.morph { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: min(1040px, 100%); aspect-ratio: 1.15; pointer-events: none; z-index: 0; opacity: 0; transition: opacity .8s var(--ease); }
 .morph.on { opacity: .8; }
 .is-dark .morph.on { opacity: 1; }
 .morph canvas { width: 100%; height: 100%; display: block; }
 .morph-cap { display: none; }
-@media (max-width: 720px) { .morph { width: 128%; top: 30px; } .morph.on { opacity: .45; } .is-dark .morph.on { opacity: .7; } }
+@media (max-width: 720px) { .morph { width: 150vw; top: 30px; } .morph.on { opacity: .45; } .is-dark .morph.on { opacity: .7; } }
 #view-responder, #view-resultados, #status { position: relative; z-index: 1; }
 body.compact .hero { padding-block: 52px 0; }
 body.compact .hero-copy p, body.compact .hero-meta, body.compact .rig, body.compact .vz { display: none; }
@@ -2286,7 +2287,7 @@ renderStatus();
   function resize() {
     const r = box.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
     if (!r.width) return; W = r.width; Hh = r.height; canvas.width = Math.round(W * dpr); canvas.height = Math.round(Hh * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    cx = W / 2; cy = Hh * 0.48; unit = Math.min(W, Hh) * 0.2;
+    cx = W / 2; cy = Hh * 0.5; unit = Math.min(W, Hh) * 0.235;
   }
   const L = (() => { const v = [-0.45, -0.75, -0.5], n = Math.hypot(...v); return v.map(x => x / n); })();
   const rot = (x, y, a, ox, oy) => { const c = Math.cos(a), s2 = Math.sin(a); return [ox + x * c - y * s2, oy + x * s2 + y * c]; };
@@ -2295,7 +2296,7 @@ renderStatus();
     if (!tStart) tStart = t;
     const age = t - tStart, follow = Math.min(0.45, 0.02 + age / 9000);
     const r = box.getBoundingClientRect(), inside = ptr.x > r.left - 60 && ptr.x < r.right + 60 && ptr.y > r.top - 60 && ptr.y < r.bottom + 60;
-    if (!still) { yaw += 0.0028; yawOff += ((inside ? ((ptr.x - r.left) / r.width - 0.5) * 1.4 : 0) - yawOff) * 0.04; pitch += ((inside ? 0.3 - ((ptr.y - r.top) / r.height - 0.5) * 0.6 : 0.3) - pitch) * 0.04; }
+    if (!still) yaw = -0.5 + age * 0.00017;                 // steady turn, independent of the pointer
     const th = still ? 0.6 : t * 0.0021;                     // crank angle
     const pin = [C[0] + CR * Math.cos(th), C[1] + CR * Math.sin(th)];
     const phi = -0.17 * Math.sin(th);                        // beam angle
