@@ -116,11 +116,11 @@ svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor;
 .vz-tabs button:hover { color: var(--band-ink); }
 .vz-tabs button[aria-selected="true"] { background: var(--amber); color: var(--amber-ink); }
 .vz button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
-.vz-stage { position: relative; aspect-ratio: 1.3; }
+.vz-stage { position: relative; aspect-ratio: 1.9; }
 .vz-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; }
-.vz-info { position: absolute; left: 0; bottom: 0; width: 44%; min-width: 180px; padding: 10px 12px 11px; border-radius: 12px; background: color-mix(in srgb, var(--band) 80%, transparent); border: 1px solid rgba(255,255,255,.1); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 14px 30px -18px rgba(0,0,0,.7); }
-.vz-info .t { display: block; font-size: 14px; font-weight: 700; color: var(--amber); line-height: 1.25; }
-.vz-info .m { display: block; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--band-ink-2); margin-top: 3px; }
+.vz-info { position: relative; min-height: 118px; padding: 10px 13px 11px; border-radius: 12px; background: color-mix(in srgb, var(--band) 80%, transparent); border: 1px solid rgba(255,255,255,.1); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 14px 30px -18px rgba(0,0,0,.7); }
+.vz-info .t { display: inline; font-size: 14px; font-weight: 700; color: var(--amber); line-height: 1.25; }
+.vz-info .m { display: inline; margin-left: 8px; white-space: nowrap; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--band-ink-2); margin-top: 3px; }
 .vz-info p { margin: 6px 0 0; font-size: 12.5px; line-height: 1.45; color: var(--band-ink); }
 .vz-info ul { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0 0; padding: 0; list-style: none; }
 .vz-info li { font-size: 11px; padding: 2px 7px; border-radius: 999px; background: rgba(255,255,255,.07); color: var(--band-ink-2); }
@@ -128,7 +128,7 @@ svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor;
 @keyframes vzin { from { opacity: 0; transform: translateY(5px); } }
 .vz-legend { display: flex; flex-wrap: nowrap; gap: 6px; min-height: 30px; overflow-x: auto; scrollbar-width: none; }
 .vz-legend::-webkit-scrollbar { display: none; }
-.vz-legend button { flex: none; }
+.vz .vz-legend button { flex: none; white-space: nowrap; }
 .vz-legend button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 8px; font-size: 12px; color: var(--band-ink-2); border: 1px solid rgba(255,255,255,.1); transition: color .2s, border-color .2s, background .2s; }
 .vz-legend button i { width: 7px; height: 7px; border-radius: 2px; background: var(--amber); opacity: .55; transition: opacity .2s, transform .2s; }
 .vz-legend button.on, .vz-legend button:hover { color: var(--band-ink); border-color: color-mix(in srgb, var(--amber) 60%, transparent); background: rgba(255,255,255,.05); }
@@ -566,8 +566,8 @@ td.heat { text-align: center; font-weight: 700; font-variant-numeric: tabular-nu
       </div>
       <div class="vz-stage">
         <canvas aria-hidden="true"></canvas>
-        <div class="vz-info" aria-live="polite"></div>
       </div>
+      <div class="vz-info" aria-live="polite"></div>
       <div class="vz-legend"></div>
     </section>
   </div>
@@ -1992,95 +1992,151 @@ renderStatus();
   const esc = x => String(x).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const smooth = x => x * x * (3 - 2 * x);
-  let W = 0, H = 0, sc = 1, ox = 0, oy = 0, dots = [], col = {}, font = 'sans-serif', raf = 0, visible = true;
+  let W = 0, H = 0, sc = 1, ox = 0, oy = 0, dots = [], col = {}, font = 'sans-serif', raf = 0, visible = true, gap = 6, born = 0;
   let layer = 'cuencas', hover = null, pinned = null, auto = null, actT0 = 0, lastAct = null, engaged = false, autoTimer = 0, pinT = {};
   const m = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4, s: 0, on: false };
-  const proj = ([lon, lat]) => [ox + (lon - X0) * K * sc, oy + (Y1 - lat) * sc];
-  const unproj = (x, y) => [(x - ox) / (K * sc) + X0, Y1 - (y - oy) / sc];
+  /* 3D: the map is a tilted plane of points (x east, z north, y down); pins rise from it as columns of points.
+     The camera sways gently on its own; the pointer only pushes nearby points and highlights what it touches. */
+  const LC = (X0 + X1) / 2, LATC = (Y0 + Y1) / 2, TILT = 0.6, CT = Math.cos(TILT), ST = Math.sin(TILT), DIST = 26;
+  let yaw = 0, cyw = 1, syw = 0;
+  const world = (lon, lat) => [(lon - LC) * K, (lat - LATC)];
+  const project = (X, Y, Z) => {
+    const x1 = X * cyw - Z * syw, z1 = X * syw + Z * cyw;
+    const ys = Y * CT - z1 * ST, dz = Y * ST + z1 * CT, f = DIST / (DIST + dz);
+    return [ox + x1 * sc * f, oy + ys * sc * f, f, dz];
+  };
+  const proj = ([lon, lat], h = 0) => { const [X, Z] = world(lon, lat); return project(X, -h, Z); };
   const active = () => hover || pinned || auto;
   const pins = () => { const it = [...LAYERS[layer].items.filter(i => i.kind !== 'basin'), ...(LAYERS[layer].pts || [])]; return it.includes(TOME) ? it : [...it, TOME]; };
   const inEseq = (lon, lat) => inPoly(lon, lat, GUY) && lon < riverLon(lat);
+  const NEON = { dot: [90, 205, 255], basin: [255, 150, 40], basinHi: [255, 205, 90], pin: [255, 70, 200], tome: [255, 236, 120], eseq: [120, 170, 220] };
   const readCol = () => { const st = getComputedStyle(document.documentElement); col.dot = rgb(st.getPropertyValue('--band-ink').trim()); col.hi = rgb(st.getPropertyValue('--amber').trim()); col.bg = rgb(st.getPropertyValue('--band').trim()); font = getComputedStyle(document.body).fontFamily || font; };
 
   function build() {
     const r = stage.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
     if (!r.width || !r.height) return false;
     W = r.width; H = r.height; canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    sc = Math.min(W / ((X1 - X0) * K), H / (Y1 - Y0)); ox = W - (X1 - X0) * K * sc; oy = (H - (Y1 - Y0) * sc) / 2;
-    const gap = Math.max(5.5, W / 66); dots = [];
+    /* Fit the tilted map (with room for the tallest pins) inside the stage. */
+    yaw = 0; cyw = 1; syw = 0; sc = 1; ox = 0; oy = 0;
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (const [lon, lat] of [...VEN, ...GUY]) { const [x, y] = proj([lon, lat], 0); x0 = Math.min(x0, x); x1 = Math.max(x1, x); y1 = Math.max(y1, y); const [, yt] = proj([lon, lat], 1.0); y0 = Math.min(y0, yt); }
+    sc = Math.min((W - 8) / (x1 - x0), (H - 4) / (y1 - y0));
+    ox = (W - (x1 - x0) * sc) / 2 - x0 * sc; oy = (H - (y1 - y0) * sc) / 2 - y0 * sc;
+    /* Grid of points across the country, sampled in degrees. */
+    const step = 0.205; dots = []; gap = step * K * sc;
     const basins = LAYERS.cuencas.items;
-    for (let y = gap / 2; y < H; y += gap) for (let x = gap / 2; x < W; x += gap) {
-      const [lon, lat] = unproj(x, y);
-      if (!inPoly(lon, lat, VEN)) { if (inEseq(lon, lat)) dots.push({ x, y, b: null, z: true, k: 0, w: 0 }); continue; }
-      const lx = (lon - LAKE.lon) / LAKE.rx, ly = (lat - LAKE.lat) / LAKE.ry; if (lx * lx + ly * ly < 1) continue;
-      const b = basins.find(B => inPoly(lon, lat, B.poly));
-      dots.push({ x, y, b: b ? b.id : null, k: 0, w: 0 });
+    for (let lat = Y0; lat <= Y1; lat += step) for (let lon = X0; lon <= X1; lon += step) {
+      const lo = lon + ((Math.round((lat - Y0) / step) % 2) ? step / 2 : 0);
+      let b = null, z = false;
+      if (!inPoly(lo, lat, VEN)) { if (!inEseq(lo, lat)) continue; z = true; }
+      else { const lx = (lo - LAKE.lon) / LAKE.rx, ly = (lat - LAKE.lat) / LAKE.ry; if (lx * lx + ly * ly < 1) continue; const B = basins.find(B2 => inPoly(lo, lat, B2.poly)); b = B ? B.id : null; }
+      const a = Math.random() * 6.283, c2 = Math.acos(2 * Math.random() - 1), rr = 4 + Math.random() * 5;
+      dots.push({ lon: lo, lat, b, z, k: 0, ox: 0, oy: 0, vx: 0, vy: 0, ex: Math.sin(c2) * Math.cos(a) * rr, ey: Math.cos(c2) * rr, ez: Math.sin(c2) * Math.sin(a) * rr, d: 0.025 + Math.random() * 0.03, sx: 0, sy: 0 });
     }
+    if (!born) born = performance.now();
     return true;
   }
 
+  /* Labels are placed one by one and never overlap each other or the info card. */
+  let placed = [];
+  const hits = (a, b2) => a.x < b2.x + b2.w && a.x + a.w > b2.x && a.y < b2.y + b2.h && a.y + a.h > b2.y;
   function label(x, y, text, strong) {
     ctx.font = `600 11px ${font}`;
     const w = ctx.measureText(text).width + 14, h = 20;
-    let lx = x + 10, ly = y - h / 2;
-    if (lx + w > W - 2) lx = x - 10 - w;
-    ly = Math.max(2, Math.min(H - h - 2, ly));
-    ctx.fillStyle = rgba(col.bg, 0.86); ctx.strokeStyle = rgba(col.hi, strong ? 0.7 : 0.3); ctx.lineWidth = 1;
-    ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(lx, ly, w, h, 6); else ctx.rect(lx, ly, w, h); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = rgba(strong ? col.hi : col.dot, strong ? 1 : 0.85); ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.fillText(text, lx + 7, ly + h / 2 + 0.5);
+    const tries = [[x + 10, y - h / 2], [x - 10 - w, y - h / 2], [x - w / 2, y - h - 10], [x - w / 2, y + 10], [x + 10, y - h - 8], [x - 10 - w, y - h - 8], [x + 10, y + 8], [x - 10 - w, y + 8], [x - w / 2, y - h - 32]];
+    let rect = null;
+    for (const [lx, ly] of tries) { const c = { x: Math.max(2, Math.min(W - w - 2, lx)), y: Math.max(2, Math.min(H - h - 2, ly)), w, h }; if (!placed.some(p2 => hits(c, p2))) { rect = c; break; } }
+    if (!rect) return;
+    placed.push({ x: rect.x - 3, y: rect.y - 3, w: rect.w + 6, h: rect.h + 6 });
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = rgba(col.bg, 0.9); ctx.strokeStyle = strong ? 'rgba(255,150,40,.8)' : 'rgba(90,205,255,.35)'; ctx.lineWidth = 1;
+    ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(rect.x, rect.y, w, h, 6); else ctx.rect(rect.x, rect.y, w, h); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = strong ? 'rgb(255,205,90)' : rgba(col.dot, 0.9); ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.fillText(text, rect.x + 7, rect.y + h / 2 + 0.5);
   }
 
   function draw(t) {
     ctx.clearRect(0, 0, W, H);
-    const act = active(), ease = reduce.matches ? 1 : 0.14;
-    const [cx, cy] = proj(CCS);
-    const ring = act && act.national && !reduce.matches ? ((t - actT0) % 2400) * 0.3 : -1;
-    const basinTint = layer === 'cuencas' ? 0.55 : 0.22;
-    const idle = !act && m.s < 0.05 && !reduce.matches, sweep = idle ? ((t % 5600) / 5600) * (W * 1.6 + 260) - 130 : -1e9;
+    const still = reduce.matches, act = active(), ease = still ? 1 : 0.12;
+    const age = t - born, follow = Math.min(1, 0.02 + age / 6000);
+    yaw = still ? 0 : 0.11 * Math.sin(t * 0.00023); cyw = Math.cos(yaw); syw = Math.sin(yaw);
+    const ringDeg = act && act.national && !still ? ((t - actT0) % 2400) * 0.0105 : -1;
+    const idle = !act && m.s < 0.05 && !still, sweepLon = X0 - 2 + ((t % 6400) / 6400) * (X1 - X0 + 4);
+    const raise = layer === 'cuencas' ? 0.1 : 0.03;
+    const sz = Math.max(1.8, gap * 0.42);
+    ctx.globalCompositeOperation = 'lighter';
     for (const d of dots) {
-      const dist = m.s > 0.01 ? Math.hypot(d.x - m.x, d.y - m.y) : 1e9;
-      const near = dist < 64 ? smooth(1 - dist / 64) * m.s : 0;
-      const tgt = (act && act.kind === 'basin' && d.b === act.id) ? 1 : (act && act.national && reduce.matches ? 0.6 : 0);
+      const tgt = act && act.kind === 'basin' && d.b === act.id ? 1 : 0;
       d.k += (tgt - d.k) * ease;
-      let wave = 0; if (ring >= 0) { const q = (Math.hypot(d.x - cx, d.y - cy) - ring) / 16; wave = Math.exp(-q * q) * 0.85; }
-      let sw = 0; if (idle) { const q = (d.x + d.y * 0.6 - sweep) / 34; sw = Math.exp(-q * q) * 0.5; }
-      const lit = Math.max(near * 0.75, d.k, wave, sw);
-      if (d.z) { ctx.strokeStyle = rgba(col.dot, 0.42 + 0.3 * lit); ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(d.x - 1.8, d.y + 1.8); ctx.lineTo(d.x + 1.8, d.y - 1.8); ctx.stroke(); continue; }
-      if (lit > 0.03) { ctx.fillStyle = rgba(col.hi, (d.b ? basinTint : 0.3) + 0.5 * lit); ctx.beginPath(); ctx.arc(d.x, d.y, 1.35 + 1 * lit, 0, 6.2832); ctx.fill(); }
-      else { ctx.fillStyle = d.b ? rgba(col.hi, basinTint) : rgba(col.dot, 0.42); ctx.fillRect(d.x - 1.25, d.y - 1.25, 2.5, 2.5); }
-    }
-    if (act && act.kind === 'basin') { const [ax, ay] = proj(act.at); label(ax - 10, ay, act.short, true); }
-
-    // pins
-    const seenCcs = { done: false };
-    for (const p of pins()) {
-      if (p.national) { if (seenCcs.done) continue; seenCcs.done = true; }
-      const isAct = act && (act === p || (p.national && act.national));
-      const born = pinT[p.id] ?? 0, grow = reduce.matches ? 1 : Math.max(0, Math.min(1, (t - born) / 380));
-      const g = 1 - Math.pow(1 - grow, 3);
-      const [x, y] = proj(p.at);
-      if (p.kind === 'tome' || isAct) {
-        const ph = reduce.matches ? 0.45 : ((t + (p.kind === 'tome' ? 0 : 700)) % 2400) / 2400;
-        ctx.strokeStyle = rgba(col.hi, 0.75 * (1 - ph)); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x, y, 5 + 15 * ph, 0, 6.2832); ctx.stroke();
+      const h = d.b ? raise + 0.38 * d.k : 0;
+      if (!still) { const e = 1 - Math.max(d.d, follow * 0.2); d.ex *= e; d.ey *= e; d.ez *= e; } else { d.ex = d.ey = d.ez = 0; }
+      const [X, Z] = world(d.lon, d.lat);
+      const [sx, sy, f, dz] = project(X + d.ex, -h + d.ey, Z + d.ez);
+      if (!still) {
+        const dx = sx + d.ox - m.x, dy = sy + d.oy - m.y, d2 = m.s > 0.05 ? dx * dx + dy * dy : 1e9;
+        if (d2 < 2025) { const dd = Math.sqrt(d2) || 1, k = (1 - dd / 45) * 1.3; d.vx += dx / dd * k; d.vy += dy / dd * k; }
+        d.vx += -d.ox * 0.09; d.vy += -d.oy * 0.09; d.vx *= 0.8; d.vy *= 0.8; d.ox += d.vx; d.oy += d.vy;
       }
-      ctx.save(); ctx.translate(x, y); ctx.scale(g, g);
-      ctx.fillStyle = rgba(col.hi, isAct || p.kind === 'tome' ? 1 : 0.8); ctx.strokeStyle = rgba(col.bg, 1); ctx.lineWidth = 2;
-      ctx.beginPath();
-      const r = isAct ? 5 : 4;
-      if (p.kind === 'field' || p.small) { const rr = isAct ? 4.2 : 3; ctx.arc(0, 0, rr, 0, 6.2832); ctx.fillStyle = isAct ? rgba(col.hi, 1) : rgba(col.bg, 0.9); ctx.strokeStyle = rgba(col.hi, 0.95); ctx.lineWidth = 1.6; if (p.small) { ctx.beginPath(); ctx.rect(-rr, -rr, 2 * rr, 2 * rr); } }
-      else if (p.kind === 'plant') { ctx.rect(-r, -r, 2 * r, 2 * r); }
-      else if (p.kind === 'event') { ctx.moveTo(0, -r - 1); ctx.lineTo(r + 1, 0); ctx.lineTo(0, r + 1); ctx.lineTo(-r - 1, 0); ctx.closePath(); }
-      else ctx.arc(0, 0, r, 0, 6.2832);
-      ctx.fill(); ctx.stroke(); ctx.restore();
-      if (p.kind === 'tome' && !isAct && layer !== 'historia') label(x, y, 'San Tomé', false);
-      if (isAct) label(x, y, p.national ? 'Caracas · ' + act.short : (p.yr ? p.yr + ' · ' + p.short : p.short), true);
+      d.sx = sx + d.ox; d.sy = sy + d.oy;
+      const dist = m.s > 0.01 ? Math.hypot(sx - m.x, sy - m.y) : 1e9;
+      const near = dist < 70 ? smooth(1 - dist / 70) * m.s : 0;
+      let wave = 0; if (ringDeg >= 0) { const q = (Math.hypot(d.lon - CCS[0], d.lat - CCS[1]) - ringDeg) / 0.55; wave = Math.exp(-q * q) * 0.9; }
+      let sw = 0; if (idle) { const q = (d.lon + (d.lat - 6) * 0.5 - sweepLon) / 0.8; sw = Math.exp(-q * q) * 0.55; }
+      const lit = Math.max(near * 0.7, d.k, wave, sw);
+      const fog = Math.max(0.55, Math.min(1.1, 1.05 - dz * 0.035));
+      let c, a;
+      if (d.z) { c = NEON.eseq; a = 0.28 * fog; }
+      else if (d.b) { c = d.k > 0.3 ? NEON.basinHi : NEON.basin; a = ((layer === 'cuencas' ? 0.5 : 0.22) + 0.5 * lit) * fog; }
+      else { c = lit > 0.05 ? NEON.basin : NEON.dot; a = (0.46 + 0.45 * lit) * fog; }
+      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${Math.min(1, a)})`;
+      const z = sz * f * (1 + 0.5 * lit);
+      if (d.z) { ctx.fillRect(d.sx - z * 0.6, d.sy, z * 1.2, z * 0.45); }
+      else ctx.fillRect(d.sx - z / 2, d.sy - z / 2, z, z);
     }
+    /* Pins: columns of points rising from the map, with a marker on top. */
+    placed = [];
+    const labels = [];
+    const list = pins().filter((p2, i, arr) => !p2.national || arr.findIndex(q => q.national) === i);
+    const tops = [];
+    for (const p2 of list) {
+      const isAct = act && (act === p2 || (p2.national && act.national));
+      const grow = still ? 1 : Math.max(0, Math.min(1, (t - (pinT[p2.id] ?? 0)) / 420)), g = 1 - Math.pow(1 - grow, 3);
+      const hp = (p2.kind === 'tome' ? 1.25 : (p2.kind === 'field' || p2.small) ? 0.55 : 0.9) * g * (isAct ? 1.25 : 1);
+      const [bx, by, bf, bdz] = proj(p2.at, 0), [tx, ty, tf] = proj(p2.at, hp);
+      const c = p2.kind === 'tome' ? NEON.tome : NEON.pin;
+      const n = Math.max(2, Math.round(Math.hypot(tx - bx, ty - by) / 3.2));
+      for (let i = 0; i <= n; i++) { const u = i / n; ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${(0.25 + 0.6 * u) * (isAct ? 1 : 0.8)})`; const zz = 1.6 + 0.6 * u; ctx.fillRect(bx + (tx - bx) * u - zz / 2, by + (ty - by) * u - zz / 2, zz, zz); }
+      if (p2.kind === 'tome' || isAct) {
+        const ph = still ? 0.45 : ((t + (p2.kind === 'tome' ? 0 : 700)) % 2400) / 2400, rx = (5 + 16 * ph) * bf;
+        ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.8 * (1 - ph)})`; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(bx, by, rx, rx * 0.5, 0, 0, 6.2832); ctx.stroke();
+      }
+      tops.push({ p2, tx, ty, bx, by, bdz, isAct, c, g });
+    }
+    tops.sort((a2, b2) => b2.bdz - a2.bdz);
+    for (const o of tops) {
+      const { p2, tx, ty, isAct, c, g } = o, r = (isAct ? 5 : (p2.kind === 'field' || p2.small) ? 3 : 4) * g;
+      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${isAct || p2.kind === 'tome' ? 1 : 0.85})`; ctx.beginPath();
+      if (p2.kind === 'plant' || p2.small) ctx.rect(tx - r, ty - r, 2 * r, 2 * r);
+      else if (p2.kind === 'event') { ctx.moveTo(tx, ty - r - 1); ctx.lineTo(tx + r + 1, ty); ctx.lineTo(tx, ty + r + 1); ctx.lineTo(tx - r - 1, ty); ctx.closePath(); }
+      else ctx.arc(tx, ty, r, 0, 6.2832);
+      ctx.fill();
+      if (isAct) labels.unshift([tx, ty, p2.national ? 'Caracas · ' + act.short : (p2.yr ? p2.yr + ' · ' + p2.short : p2.short), true]);
+      else if (p2.kind === 'tome' && layer !== 'historia') labels.push([tx, ty, 'San Tomé', false]);
+    }
+    if (act && act.kind === 'basin') { const [ax, ay] = proj(act.at, raise + 0.38); labels.unshift([ax, ay, act.short, true]); }
+    for (const L2 of labels) label(...L2);
   }
-
+  const infoHtml = it => `<span class="t">${esc(it.t)}</span><span class="m">${esc(it.m)}</span><p>${esc(it.p)}</p>${it.c ? `<ul>${it.c.map(c => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}`;
+  /* Reserve the height of the tallest note so the panel never jumps as notes change. */
+  function sizeInfo() {
+    const all = [TOME]; Object.values(LAYERS).forEach(L2 => { all.push(L2.intro, ...L2.items, ...(L2.pts || [])); });
+    const keep = info.innerHTML; info.style.minHeight = '0px'; let mx = 0;
+    for (const it of all) { info.innerHTML = infoHtml(it); mx = Math.max(mx, info.offsetHeight); }
+    info.innerHTML = keep; info.style.minHeight = mx + 'px';
+  }
   function renderInfo() {
     const act = active(), it = act || LAYERS[layer].intro;
     if (it === lastAct) return; lastAct = it;
-    info.innerHTML = `<span class="t">${esc(it.t)}</span><span class="m">${esc(it.m)}</span><p>${esc(it.p)}</p>${it.c ? `<ul>${it.c.map(c => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}`;
+    info.innerHTML = infoHtml(it);
     info.classList.remove('swap'); void info.offsetWidth; info.classList.add('swap');
     legend.querySelectorAll('button').forEach(b => { b.classList.toggle('on', !!act && b.dataset.id === act.id); b.classList.toggle('prog', !!auto && auto === act && b.dataset.id === auto.id && !reduce.matches); });
   }
@@ -2117,12 +2173,18 @@ renderStatus();
   box.addEventListener('pointerleave', () => { clearTimeout(resumeTimer); resumeTimer = setTimeout(() => { if (!pinned && !hover) startAuto(0); }, 7000); });
 
   function hit(x, y) {
-    let best = null, bd = 12;
-    for (const p of pins()) { const [px, py] = proj(p.at), d = Math.hypot(x - px, y - py); if (d < bd) { bd = d; best = p; } }
-    if (best) return best;
-    const [lon, lat] = unproj(x, y);
-    if (layer !== 'cuencas' || !inPoly(lon, lat, VEN)) return null;
-    return LAYERS.cuencas.items.find(B => inPoly(lon, lat, B.poly)) || null;
+    let best = null, bd = 11;
+    for (const p2 of pins()) {
+      const hp = p2.kind === 'tome' ? 1.25 : (p2.kind === 'field' || p2.small) ? 0.55 : 0.9;
+      const [bx, by] = proj(p2.at, 0), [tx, ty] = proj(p2.at, hp);
+      const vx = tx - bx, vy = ty - by, L2 = vx * vx + vy * vy || 1, u = Math.max(0, Math.min(1, ((x - bx) * vx + (y - by) * vy) / L2));
+      const d = Math.hypot(x - (bx + vx * u), y - (by + vy * u)) - (u > 0.85 ? 3 : 0);
+      if (d < bd) { bd = d; best = p2; }
+    }
+    if (best || layer !== 'cuencas') return best;
+    let nd = gap * 0.9, nb = null, any = false;
+    for (const d of dots) { if (d.z) continue; const dd = Math.hypot(d.sx - x, d.sy - y); if (dd < nd) { nd = dd; nb = d.b; any = true; } }
+    return any && nb ? LAYERS.cuencas.items.find(B => B.id === nb) : null;
   }
 
   function frame(t) {
@@ -2162,7 +2224,8 @@ renderStatus();
   new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   document.addEventListener('visibilitychange', kick);
   if ('IntersectionObserver' in window) new IntersectionObserver(es => es.forEach(e => { visible = e.isIntersecting; if (visible) kick(); })).observe(stage);
-  const resize = () => { if (build()) { draw(performance.now()); kick(); } };
+  let lastW = 0;
+  const resize = () => { if (build()) { if (Math.abs(W - lastW) > 1) { lastW = W; sizeInfo(); } draw(performance.now()); kick(); } };
   readCol();
   if ('ResizeObserver' in window) new ResizeObserver(resize).observe(stage); else addEventListener('resize', resize);
   setLayer('cuencas'); resize();
