@@ -160,13 +160,13 @@ svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor;
 }
 
 main .wrap { padding-block: 32px 72px; position: relative; }
-.morph { position: absolute; top: 18px; right: 1%; width: min(310px, 34%); aspect-ratio: 1; pointer-events: none; z-index: 0; opacity: 0; transition: opacity .6s var(--ease); }
+.morph { position: absolute; top: 6px; right: 0; width: min(360px, 34%); aspect-ratio: 1.05; pointer-events: none; z-index: 0; opacity: 0; transition: opacity .6s var(--ease); }
 .morph.on { opacity: 1; }
 .morph canvas { width: 100%; height: 100%; display: block; }
 .morph-cap { position: absolute; left: 0; right: 0; text-align: center; bottom: -2px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .morph-cap b { color: var(--accent); font-weight: 600; }
 #view-responder, #view-resultados, #status { position: relative; z-index: 1; }
-@media (min-width: 721px) { body:not(.compact) .choose-head { min-height: 300px; display: flex; flex-direction: column; justify-content: center; padding-right: 36%; } }
+@media (min-width: 721px) { body:not(.compact) .choose-head { min-height: 330px; display: flex; flex-direction: column; justify-content: center; padding-right: 36%; } }
 @media (max-width: 720px) { .morph { width: 46%; top: 6px; right: 0; } .morph.on { opacity: .38; } .morph-cap { display: none; } }
 body.compact .hero { padding-block: 52px 0; }
 body.compact .hero-copy p, body.compact .hero-meta, body.compact .rig, body.compact .vz { display: none; }
@@ -582,7 +582,7 @@ td.heat { text-align: center; font-weight: 700; font-variant-numeric: tabular-nu
 
 <main>
   <div class="wrap">
-    <div class="morph" id="morph" aria-hidden="true"><canvas></canvas><span class="morph-cap"><b>01</b> · <span>Gota de crudo</span></span></div>
+    <div class="morph" id="morph" aria-hidden="true"><canvas></canvas><span class="morph-cap"><b>1 barril</b> · 159 litros</span></div>
     <div id="status"></div>
     <section id="view-responder" role="tabpanel" aria-labelledby="tab-responder"></section>
     <section id="view-resultados" role="tabpanel" aria-labelledby="tab-resultados" hidden></section>
@@ -2181,71 +2181,86 @@ renderStatus();
 })();
 </script>
 <script>
-/* Start screen background: a cloud of particles that springs from one oil icon to the next
-   (crude drop, derrick, pumpjack, barrel). Particles part around the pointer and settle back.
-   Shown only on the group-selection screen. */
+/* Start screen: a 3D oil barrel made of points. Loose particles drift in and assemble the barrel,
+   which turns slowly; the pointer tilts it and pushes nearby points away. Start screen only. */
 (() => {
   const box = document.getElementById('morph'); if (!box) return;
   const canvas = box.querySelector('canvas'), ctx = canvas.getContext('2d'); if (!ctx) return;
-  const capN = box.querySelector('.morph-cap b'), capT = box.querySelector('.morph-cap span');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
-  const N = 1100, SIZE = 200;
-  const SHAPES = [
-    { name: 'Gota de crudo', draw: c => { c.beginPath(); c.moveTo(100, 18); c.bezierCurveTo(132, 70, 162, 104, 162, 136); c.arc(100, 136, 62, 0, Math.PI); c.bezierCurveTo(38, 104, 68, 70, 100, 18); c.fill(); } },
-    { name: 'Taladro', draw: c => { c.lineWidth = 9; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath();
-        c.moveTo(56, 186); c.lineTo(92, 22); c.moveTo(144, 186); c.lineTo(108, 22); c.moveTo(84, 22); c.lineTo(116, 22);
-        c.moveTo(64, 148); c.lineTo(136, 148); c.moveTo(72, 108); c.lineTo(128, 108); c.moveTo(80, 70); c.lineTo(120, 70);
-        c.moveTo(64, 148); c.lineTo(128, 108); c.moveTo(136, 148); c.lineTo(72, 108); c.moveTo(72, 108); c.lineTo(120, 70); c.moveTo(128, 108); c.lineTo(80, 70);
-        c.moveTo(30, 186); c.lineTo(170, 186); c.stroke(); } },
-    { name: 'Balancín', draw: c => { c.lineWidth = 9; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath();
-        c.moveTo(18, 178); c.lineTo(182, 178); c.moveTo(84, 178); c.lineTo(104, 82); c.lineTo(124, 178);
-        c.moveTo(36, 100); c.lineTo(164, 66); c.moveTo(150, 178); c.lineTo(150, 112);
-        c.moveTo(56, 95); c.lineTo(64, 140); c.moveTo(150, 112); c.lineTo(150, 178); c.stroke();
-        c.beginPath(); c.moveTo(160, 52); c.quadraticCurveTo(190, 64, 178, 98); c.lineTo(160, 76); c.closePath(); c.fill();
-        c.beginPath(); c.arc(64, 146, 14, 0, 6.2832); c.fill(); } },
-    { name: 'Barril', draw: c => { c.beginPath(); if (c.roundRect) c.roundRect(52, 26, 96, 150, 22); else c.rect(52, 26, 96, 150); c.fill();
-        c.globalCompositeOperation = 'destination-out'; c.fillRect(40, 66, 120, 7); c.fillRect(40, 128, 120, 7); c.globalCompositeOperation = 'source-over'; } }
-  ];
-  /* Sample each icon into N target points, sorted by angle so particles travel coherently between shapes. */
-  const off = document.createElement('canvas'); off.width = off.height = SIZE; const oc = off.getContext('2d');
-  const targets = SHAPES.map(sh => {
-    oc.clearRect(0, 0, SIZE, SIZE); oc.fillStyle = oc.strokeStyle = '#000'; sh.draw(oc);
-    const d = oc.getImageData(0, 0, SIZE, SIZE).data, pts = [];
-    for (let y = 0; y < SIZE; y += 3) for (let x = 0; x < SIZE; x += 3) if (d[(y * SIZE + x) * 4 + 3] > 120) pts.push([x, y]);
-    const out = []; for (let i = 0; i < N; i++) { const p = pts[Math.floor(i * pts.length / N)]; out.push([p[0] + (Math.random() - .5) * 2.2, p[1] + (Math.random() - .5) * 2.2]); }
-    return out.sort((a, b) => Math.atan2(a[1] - 110, a[0] - 100) - Math.atan2(b[1] - 110, b[0] - 100));
-  });
-  const P = Array.from({ length: N }, (_, i) => ({ x: Math.random() * SIZE, y: Math.random() * SIZE, vx: 0, vy: 0, tx: 0, ty: 0, amber: Math.random() < 0.28, s: 1 + Math.random() * 1.1, ph: Math.random() * 6.28, kk: 0.035 + Math.random() * 0.03 }));
-  let shape = -1, W = 0, H = 0, scale = 1, ox = 0, oy = 0, raf = 0, timer = 0, col = {}, shown = false;
+  const R = 1, HH = 1.45, pts = [];
+  const add = (x, y, z, nx, ny, nz, kind) => pts.push({ hx: x, hy: y, hz: z, nx, ny, nz, kind });
+  /* Body: slightly bulged cylinder; hoops at the rims and at one and two thirds of the height. */
+  const rows = 34, cols = 46;
+  for (let i = 0; i <= rows; i++) {
+    const v = i / rows, y = -HH + 2 * HH * v;
+    const hoop = [0.02, 0.33, 0.67, 0.98].some(h => Math.abs(v - h) < 0.018);
+    const bulge = 1 + 0.06 * Math.sin(Math.PI * v) + (hoop ? 0.035 : 0);
+    const n = hoop ? cols * 2 : cols;
+    for (let j = 0; j < n; j++) { const a = (j + (i % 2) * 0.5) / n * Math.PI * 2 + (hoop ? 0 : (Math.random() - .5) * 0.05); add(Math.cos(a) * R * bulge, y, Math.sin(a) * R * bulge, Math.cos(a), 0, Math.sin(a), hoop ? 'hoop' : 'body'); }
+  }
+  /* Lid with a rim and the two bungs. */
+  for (const sgn of [-1, 1]) {
+    for (let rr = 0.12; rr <= 0.96; rr += 0.11) { const n = Math.round(46 * rr); for (let j = 0; j < n; j++) { const a = j / n * Math.PI * 2; add(Math.cos(a) * rr, sgn * HH, Math.sin(a) * rr, 0, sgn, 0, rr > 0.85 ? 'hoop' : 'lid'); } }
+    if (sgn < 0) for (const [bx, bz] of [[0.52, 0.18], [-0.42, -0.3]]) for (let j = 0; j < 14; j++) { const a = j / 14 * Math.PI * 2; add(bx + Math.cos(a) * 0.12, -HH - 0.03, bz + Math.sin(a) * 0.12, 0, -1, 0, 'hoop'); }
+  }
+  /* Loose particles orbiting the barrel. */
+  const LOOSE = 220;
+  for (let i = 0; i < LOOSE; i++) { const a = Math.random() * Math.PI * 2, r = 1.5 + Math.random() * 1.1, y = (Math.random() * 2 - 1) * 2; add(Math.cos(a) * r, y, Math.sin(a) * r, 0, 0, 0, 'loose'); pts[pts.length - 1].a = a; pts[pts.length - 1].r = r; pts[pts.length - 1].sp = (0.0015 + Math.random() * 0.003) * (Math.random() < .5 ? 1 : -1); }
+  /* Every point starts scattered and flies to its place. */
+  pts.forEach(p => { const a = Math.random() * 6.28, b = Math.acos(2 * Math.random() - 1), r = 2.5 + Math.random() * 2; p.x = Math.sin(b) * Math.cos(a) * r; p.y = Math.cos(b) * r; p.z = Math.sin(b) * Math.sin(a) * r; p.sx = 0; p.sy = 0; p.ox = 0; p.oy = 0; p.vx = 0; p.vy = 0; p.d = 0.02 + Math.random() * 0.03; });
+
+  let W = 0, H = 0, cx = 0, cy = 0, unit = 1, raf = 0, shown = false, col = {}, t0 = 0;
+  let yaw = 0.6, pitch = 0.42, tYawOff = 0, tPitch = 0.42, yawOff = 0;
   const ptr = { x: -1e4, y: -1e4 };
   const probe = document.createElement('canvas').getContext('2d');
   const rgb = c => { probe.fillStyle = '#000'; probe.fillStyle = c || '#000'; const h = probe.fillStyle; return h[0] === '#' ? [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)) : (h.match(/\d+/g) || [0, 0, 0]).slice(0, 3).map(Number); };
-  const readCol = () => { const st = getComputedStyle(document.documentElement); col.a = rgb(st.getPropertyValue('--accent').trim()); col.b = rgb(st.getPropertyValue('--amber').trim()); col.dark = st.colorScheme === 'dark' || document.documentElement.classList.contains('is-dark'); };
-  function setShape(i) {
-    shape = i % SHAPES.length; const T = targets[shape];
-    P.forEach((p, j) => { p.tx = T[j][0]; p.ty = T[j][1]; p.vx += (Math.random() - .5) * 3; p.vy += (Math.random() - .5) * 3; });
-    capN.textContent = String(shape + 1).padStart(2, '0'); capT.textContent = SHAPES[shape].name;
-  }
+  const readCol = () => { const st = getComputedStyle(document.documentElement); col.amber = rgb(st.getPropertyValue('--amber').trim()); col.acc = rgb(st.getPropertyValue('--accent-2').trim()); col.ink = rgb(st.getPropertyValue('--ink').trim()); col.dark = document.documentElement.classList.contains('is-dark'); };
   function resize() {
     const r = box.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
     if (!r.width) return; W = r.width; H = r.height; canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    scale = Math.min(W, H) / SIZE * 0.92; ox = (W - SIZE * scale) / 2; oy = (H - SIZE * scale) / 2;
+    cx = W / 2; cy = H * 0.5; unit = Math.min(W, H) * 0.26;
   }
+  const L = (() => { const v = [-0.5, -0.7, -0.6], n = Math.hypot(...v); return v.map(x => x / n); })();
   function draw(t) {
-    ctx.clearRect(0, 0, W, H);
-    const r = box.getBoundingClientRect(), mx = (ptr.x - r.left - ox) / scale, my = (ptr.y - r.top - oy) / scale;
     const still = reduce.matches;
-    for (const p of P) {
+    if (!t0) t0 = t;
+    const r = box.getBoundingClientRect(), inside = ptr.x > r.left - 80 && ptr.x < r.right + 80 && ptr.y > r.top - 80 && ptr.y < r.bottom + 80;
+    if (!still) {
+      yaw += 0.0045;
+      tYawOff = inside ? ((ptr.x - r.left) / r.width - 0.5) * 1.6 : 0;
+      tPitch = inside ? 0.42 - ((ptr.y - r.top) / r.height - 0.5) * 0.7 : 0.42;
+      yawOff += (tYawOff - yawOff) * 0.05; pitch += (tPitch - pitch) * 0.05;
+    }
+    const cyw = Math.cos(yaw + yawOff), syw = Math.sin(yaw + yawOff), cp = Math.cos(pitch), sp = Math.sin(pitch);
+    const mx = ptr.x - r.left, my = ptr.y - r.top;
+    for (const p of pts) {
+      let hx = p.hx, hy = p.hy, hz = p.hz;
+      if (p.kind === 'loose' && !still) { p.a += p.sp; hx = Math.cos(p.a) * p.r; hz = Math.sin(p.a) * p.r; hy = p.hy + Math.sin(t * 0.0006 + p.r * 9) * 0.15; }
+      if (still) { p.x = hx; p.y = hy; p.z = hz; } else { p.x += (hx - p.x) * p.d; p.y += (hy - p.y) * p.d; p.z += (hz - p.z) * p.d; }
+      const x1 = p.x * cyw - p.z * syw, z1 = p.x * syw + p.z * cyw;
+      const y2 = p.y * cp - z1 * sp, z2 = p.y * sp + z1 * cp;
+      const f = 7 / (7 + z2);
+      p.px = cx + x1 * unit * f; p.py = cy + y2 * unit * f; p.f = f; p.depth = z2;
+      const nx1 = p.nx * cyw - p.nz * syw, nz1 = p.nx * syw + p.nz * cyw, ny2 = p.ny * cp - nz1 * sp, nz2 = p.ny * sp + nz1 * cp;
+      p.light = p.kind === 'loose' ? 0.6 : Math.max(0, -(nx1 * L[0] + ny2 * L[1] + nz2 * L[2])) * 0.75 + 0.25;
+      p.facing = nz2;
       if (!still) {
-        const dx = p.x - mx, dy = p.y - my, d2 = dx * dx + dy * dy;
-        if (d2 < 900) { const d = Math.sqrt(d2) || 1, f = (1 - d / 30) * 2.2; p.vx += dx / d * f; p.vy += dy / d * f; }
-        p.vx += (p.tx - p.x) * p.kk; p.vy += (p.ty - p.y) * p.kk; p.vx *= 0.86; p.vy *= 0.86; p.x += p.vx; p.y += p.vy;
-      } else { p.x = p.tx; p.y = p.ty; }
-      const tw = still ? 0.9 : 0.7 + 0.3 * Math.sin(t * 0.002 + p.ph);
-      const c = p.amber ? col.b : col.a, a = (p.amber ? 0.9 : (col.dark ? 0.75 : 0.62)) * tw;
-      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${a})`;
-      const z = p.s * (1.3 + Math.min(2.5, Math.hypot(p.vx, p.vy)) * 0.5);
-      ctx.fillRect(ox + p.x * scale - z / 2, oy + p.y * scale - z / 2, z, z);
+        const dx = p.px + p.ox - mx, dy = p.py + p.oy - my, d2 = dx * dx + dy * dy;
+        if (d2 < 2500) { const d = Math.sqrt(d2) || 1, k = (1 - d / 50) * 1.8; p.vx += dx / d * k; p.vy += dy / d * k; }
+        p.vx += -p.ox * 0.08; p.vy += -p.oy * 0.08; p.vx *= 0.82; p.vy *= 0.82; p.ox += p.vx; p.oy += p.vy;
+      }
+    }
+    pts.sort((a, b) => b.depth - a.depth);
+    ctx.clearRect(0, 0, W, H);
+    for (const p of pts) {
+      const back = p.kind !== 'loose' && p.facing > 0.15;
+      let c, a;
+      if (p.kind === 'loose') { c = col.acc; a = 0.35 + 0.35 * (p.f - 0.6); }
+      else if (p.kind === 'hoop') { c = col.dark ? [255, 236, 190] : col.ink; a = (back ? 0.16 : 0.5 + 0.45 * p.light); }
+      else { c = col.amber; a = back ? 0.14 : 0.35 + 0.65 * p.light; }
+      const z = (p.kind === 'loose' ? 1.6 : (p.kind === 'hoop' ? 1.9 : 1.85)) * p.f * (back ? 0.8 : 1.15);
+      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${Math.max(0, Math.min(1, a))})`;
+      ctx.fillRect(p.px + p.ox - z / 2, p.py + p.oy - z / 2, z, z);
     }
   }
   const frame = t => { raf = 0; if (!shown || document.hidden) return; draw(t); if (!reduce.matches) raf = requestAnimationFrame(frame); };
@@ -2253,11 +2268,11 @@ renderStatus();
   function check() {
     const on = !!document.querySelector('#view-responder .choose') && !document.getElementById('view-responder').hidden;
     if (on === shown) return; shown = on; box.classList.toggle('on', on);
-    clearInterval(timer);
-    if (on) { resize(); readCol(); if (shape < 0) setShape(0); if (!reduce.matches) timer = setInterval(() => setShape(shape + 1), 4200); kick(); }
+    if (on) { resize(); readCol(); kick(); }
   }
-  addEventListener('pointermove', e => { ptr.x = e.clientX; ptr.y = e.clientY; }, { passive: true });
+  addEventListener('pointermove', e => { ptr.x = e.clientX; ptr.y = e.clientY; kick(); }, { passive: true });
   addEventListener('touchmove', e => { const t = e.touches[0]; if (t) { ptr.x = t.clientX; ptr.y = t.clientY; } }, { passive: true });
+  addEventListener('touchend', () => { ptr.x = ptr.y = -1e4; }, { passive: true });
   document.documentElement.addEventListener('mouseleave', () => { ptr.x = ptr.y = -1e4; });
   new MutationObserver(check).observe(document.getElementById('view-responder'), { childList: true, attributes: true, attributeFilter: ['hidden'] });
   new MutationObserver(() => { readCol(); kick(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
