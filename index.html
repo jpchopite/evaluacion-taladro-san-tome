@@ -227,6 +227,7 @@ body.compact main .wrap { padding-top: 24px; }
 .group-card .n { font-family: var(--font-display); font-size: 30px; font-weight: 700; line-height: 1.05; text-wrap: balance; }
 .group-card .d { color: var(--ink-2); font-size: 15px; }
 .gc-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.gc-meta .gc-test { background: var(--amber-soft); color: var(--ink); border: 1px dashed color-mix(in srgb, var(--amber) 70%, transparent); }
 .gc-meta span { font-size: 13px; padding: 3px 10px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); font-weight: 600; }
 .gc-cta { margin-top: 4px; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: var(--accent); }
 .gc-cta .i { transition: transform .25s var(--ease); }
@@ -842,6 +843,7 @@ const GRUPOS = {
 
   ucab: {
     corto: 'UCAB · Derecho',
+    prueba: true,
     uni: 'UCAB', icon: 'flame', d1Titulo: 'Aplicación jurídica', horasLbl: 'formación en operaciones petroleras',
     nombre: 'Programa de Petróleo y Gas',
     desc: 'Abogados del postgrado de la Universidad Católica Andrés Bello. Mide comprensión de la operación y sus implicaciones jurídicas.',
@@ -924,6 +926,7 @@ const GRUPOS = {
 
   unimet: {
     corto: 'UNIMET · Refinación',
+    prueba: true,
     uni: 'UNIMET', icon: 'refinery', d1Titulo: 'Aplicación en procesos', horasLbl: 'formación en perforación y producción',
     nombre: 'Maestría en Refinación de Petróleo, Gas y Petroquímica',
     desc: 'Ingenieros químicos y de procesos de la Universidad Metropolitana. Mide la visión del pozo como origen de la cadena de refinación.',
@@ -1187,7 +1190,7 @@ function chooserView() {
       <span class="gc-top"><span class="gc-icon">${ICON[g.icon]}</span><span class="gc-tag">${esc(g.uni)}</span></span>
       <span class="n">${esc(g.nombre)}</span>
       <span class="d">${esc(g.desc)}</span>
-      <span class="gc-meta"><span>${g.pasos.length} etapas (A–${LET[g.pasos.length - 1]})</span><span>≈ 15 min</span><span>${allItems(k).filter(i => i.t !== 'consent').length} preguntas</span></span>
+      <span class="gc-meta">${g.prueba ? '<span class="gc-test">Modo de prueba</span>' : ''}<span>${g.pasos.length} etapas (A–${LET[g.pasos.length - 1]})</span><span>≈ 15 min</span><span>${allItems(k).filter(i => i.t !== 'consent').length} preguntas</span></span>
       <span class="gc-cta">Comenzar ${ICON.arrow}</span>
     </button>`).join('') + PROXIMOS.map((g, i) => `
     <div class="group-card soon" data-tone="soon" style="--i:${2 + i}" aria-disabled="true">
@@ -1325,6 +1328,7 @@ function stepView(dir) {
         <div class="mtop-row"><span class="chip">${esc(g.corto)}</span><span class="mono"><b id="depth-m">${nfm.format(shownDepth)}</b> / ${nfm.format(TOTAL_DEPTH)} m</span><button type="button" class="btn ghost sm" id="cambiar-m">Cambiar</button></div>
         <div class="mbar" aria-hidden="true"><i style="width:${pct}%"></i><b style="left:${pct}%">${BIT}</b></div>
       </div>
+      ${g.prueba ? `<div class="notice warn"><span class="ico">!</span><div><strong>Modo de prueba.</strong> Este cuestionario está en revisión: puede recorrerlo completo, pero sus respuestas no se guardan ni cuentan en los resultados.</div></div>` : ''}
       <header class="step-head anim-in">
         <span class="kicker">Etapa ${LET[st.paso]} · ${st.paso + 1} de ${total}</span>
         <h2>${esc(paso.titulo)}</h2>
@@ -1524,6 +1528,11 @@ async function enviar() {
     st.error = 'La página aún no está conectada a la base de datos. Avise al organizador.';
     $('#errmsg').textContent = st.error; return;
   }
+  if (GRUPOS[st.grupo].prueba) {
+    store.del(DRAFT_KEY);
+    st.done = { aciertos, total, grupo: st.grupo, prueba: true, paradas: [] };
+    st.error = ''; renderResponder(); scrollToView(); return;
+  }
   st.sending = true; renderResponder();
   const doc = { grupo: st.grupo, codigo: String(st.r.A1 || '').trim().replace(/\s+/g, ' ').slice(0, 80), aciertos, total_quiz: total, r: limpiar(st.r) };
   try {
@@ -1547,7 +1556,7 @@ function doneView() {
   return `<div class="done anim-in">
     <span class="badge-depth">${ICON.check}Pozo completado · ${nfm.format(TOTAL_DEPTH)} m</span>
     <h2>¡Gracias por participar!</h2>
-    <p>Sus respuestas de <strong>${esc(GRUPOS[d.grupo].corto)}</strong> quedaron registradas para el análisis de la visita.</p>
+    <p>${d.prueba ? `<strong>Modo de prueba:</strong> esta respuesta de <strong>${esc(GRUPOS[d.grupo].corto)}</strong> no se guardó y no cuenta en los resultados.` : `Sus respuestas de <strong>${esc(GRUPOS[d.grupo].corto)}</strong> quedaron registradas para el análisis de la visita.`}</p>
     <div class="score" role="img" aria-label="${steps} de ${steps} etapas completadas">
       <svg viewBox="0 0 120 120" class="ring" aria-hidden="true"><circle cx="60" cy="60" r="52" class="ring-bg"/><circle cx="60" cy="60" r="52" class="ring-fg" id="ringfg" style="stroke-dasharray:${C};stroke-dashoffset:${C}"/></svg>
       <div class="score-num"><b id="scnum">0</b><span>de ${steps} etapas</span></div>
@@ -1724,7 +1733,7 @@ function renderResultados() {
     <div><h2>Resultados</h2><p>${all.length} respuesta${all.length === 1 ? '' : 's'} registrada${all.length === 1 ? '' : 's'} <span class="updated">· actualizado ${updatedAt ? updatedAt.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' }) : ''}</span></p></div>
     <div class="res-actions">
       <div class="toggle" role="group" aria-label="Grupo">
-        ${Object.entries(GRUPOS).map(([k, gg]) => `<button data-rg="${k}" aria-pressed="${g === k}">${esc(gg.uni === 'UCV' ? gg.corto : gg.uni)} (${all.filter(x => x.grupo === k).length})</button>`).join('')}
+        ${Object.entries(GRUPOS).map(([k, gg]) => `<button data-rg="${k}" aria-pressed="${g === k}">${esc(gg.uni === 'UCV' ? gg.corto : gg.uni)}${gg.prueba ? ' · prueba' : ''} (${all.filter(x => x.grupo === k).length})</button>`).join('')}
       </div>
       <button class="btn sm" id="refresh">Actualizar</button>
       <button class="btn sm" id="csv" ${all.length ? '' : 'disabled'}>Exportar CSV</button>
