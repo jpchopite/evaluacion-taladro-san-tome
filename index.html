@@ -159,7 +159,15 @@ svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor;
   .hero-copy p { font-size: 16px; }
 }
 
-main .wrap { padding-block: 32px 72px; }
+main .wrap { padding-block: 32px 72px; position: relative; }
+.morph { position: absolute; top: 18px; right: 1%; width: min(310px, 34%); aspect-ratio: 1; pointer-events: none; z-index: 0; opacity: 0; transition: opacity .6s var(--ease); }
+.morph.on { opacity: 1; }
+.morph canvas { width: 100%; height: 100%; display: block; }
+.morph-cap { position: absolute; left: 0; right: 0; text-align: center; bottom: -2px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.morph-cap b { color: var(--accent); font-weight: 600; }
+#view-responder, #view-resultados, #status { position: relative; z-index: 1; }
+@media (min-width: 721px) { body:not(.compact) .choose-head { min-height: 300px; display: flex; flex-direction: column; justify-content: center; padding-right: 36%; } }
+@media (max-width: 720px) { .morph { width: 46%; top: 6px; right: 0; } .morph.on { opacity: .38; } .morph-cap { display: none; } }
 body.compact .hero { padding-block: 52px 0; }
 body.compact .hero-copy p, body.compact .hero-meta, body.compact .rig, body.compact .vz { display: none; }
 body.compact .band h1 { font-size: clamp(30px, 5vw, 46px); margin-top: 8px; }
@@ -205,14 +213,14 @@ body.compact main .wrap { padding-top: 24px; }
 .choose-head p { color: var(--ink-2); margin: 8px 0 0; max-width: 60ch; font-size: 17px; }
 .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; }
 @media (min-width: 720px) { .groups { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.group-card { position: relative; overflow: hidden; text-align: left; appearance: none; border: 1px solid var(--line); background: var(--surface); border-radius: 20px; padding: 24px 24px 22px; cursor: pointer; display: grid; gap: 12px; align-content: start; box-shadow: var(--shadow); transition: transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s; animation: rise .6s var(--ease) both; animation-delay: calc(var(--i, 0) * 90ms + 80ms); }
+.group-card { position: relative; overflow: hidden; text-align: left; appearance: none; border: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 82%, transparent); -webkit-backdrop-filter: blur(10px) saturate(1.2); backdrop-filter: blur(10px) saturate(1.2); border-radius: 20px; padding: 24px 24px 22px; cursor: pointer; display: grid; gap: 12px; align-content: start; box-shadow: var(--shadow); transition: transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s; animation: rise .6s var(--ease) both; animation-delay: calc(var(--i, 0) * 90ms + 80ms); }
 .group-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--tone); }
 .group-card::after { content: ""; position: absolute; width: 220px; height: 220px; right: -90px; top: -110px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--tone) 18%, transparent), transparent); transition: transform .5s var(--ease); pointer-events: none; }
 .group-card[data-tone="maestria"] { --tone: var(--accent-2); --tone-soft: var(--accent-soft); }
 .group-card[data-tone="pregrado"] { --tone: var(--amber); --tone-soft: var(--amber-soft); }
 .group-card[data-tone="ucab"] { --tone: #1f9d78; --tone-soft: color-mix(in srgb, #1f9d78 16%, var(--surface)); }
 .group-card[data-tone="unimet"] { --tone: #8a5bd6; --tone-soft: color-mix(in srgb, #8a5bd6 16%, var(--surface)); }
-.group-card.soon { --tone: var(--line); --tone-soft: var(--surface-2); cursor: default; background: color-mix(in srgb, var(--surface) 70%, var(--bg)); border-style: dashed; }
+.group-card.soon { --tone: var(--line); --tone-soft: var(--surface-2); cursor: default; background: color-mix(in srgb, var(--surface) 62%, transparent); border-style: dashed; }
 .group-card.soon::before { background: repeating-linear-gradient(135deg, var(--muted) 0 8px, transparent 8px 16px); opacity: .35; }
 .group-card.soon::after { display: none; }
 .group-card.soon:hover, .group-card.soon:active { transform: none; box-shadow: none; border-color: var(--line); }
@@ -574,6 +582,7 @@ td.heat { text-align: center; font-weight: 700; font-variant-numeric: tabular-nu
 
 <main>
   <div class="wrap">
+    <div class="morph" id="morph" aria-hidden="true"><canvas></canvas><span class="morph-cap"><b>01</b> · <span>Gota de crudo</span></span></div>
     <div id="status"></div>
     <section id="view-responder" role="tabpanel" aria-labelledby="tab-responder"></section>
     <section id="view-resultados" role="tabpanel" aria-labelledby="tab-resultados" hidden></section>
@@ -2169,6 +2178,93 @@ renderStatus();
   btn.addEventListener('click', () => { const next = current() === 'dark' ? 'light' : 'dark'; root.dataset.theme = next; try { localStorage.setItem('tema', next); } catch (e) {} paint(); });
   mq.addEventListener?.('change', paint);
   paint();
+})();
+</script>
+<script>
+/* Start screen background: a cloud of particles that springs from one oil icon to the next
+   (crude drop, derrick, pumpjack, barrel). Particles part around the pointer and settle back.
+   Shown only on the group-selection screen. */
+(() => {
+  const box = document.getElementById('morph'); if (!box) return;
+  const canvas = box.querySelector('canvas'), ctx = canvas.getContext('2d'); if (!ctx) return;
+  const capN = box.querySelector('.morph-cap b'), capT = box.querySelector('.morph-cap span');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const N = 1100, SIZE = 200;
+  const SHAPES = [
+    { name: 'Gota de crudo', draw: c => { c.beginPath(); c.moveTo(100, 18); c.bezierCurveTo(132, 70, 162, 104, 162, 136); c.arc(100, 136, 62, 0, Math.PI); c.bezierCurveTo(38, 104, 68, 70, 100, 18); c.fill(); } },
+    { name: 'Taladro', draw: c => { c.lineWidth = 9; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath();
+        c.moveTo(56, 186); c.lineTo(92, 22); c.moveTo(144, 186); c.lineTo(108, 22); c.moveTo(84, 22); c.lineTo(116, 22);
+        c.moveTo(64, 148); c.lineTo(136, 148); c.moveTo(72, 108); c.lineTo(128, 108); c.moveTo(80, 70); c.lineTo(120, 70);
+        c.moveTo(64, 148); c.lineTo(128, 108); c.moveTo(136, 148); c.lineTo(72, 108); c.moveTo(72, 108); c.lineTo(120, 70); c.moveTo(128, 108); c.lineTo(80, 70);
+        c.moveTo(30, 186); c.lineTo(170, 186); c.stroke(); } },
+    { name: 'Balancín', draw: c => { c.lineWidth = 9; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath();
+        c.moveTo(18, 178); c.lineTo(182, 178); c.moveTo(84, 178); c.lineTo(104, 82); c.lineTo(124, 178);
+        c.moveTo(36, 100); c.lineTo(164, 66); c.moveTo(150, 178); c.lineTo(150, 112);
+        c.moveTo(56, 95); c.lineTo(64, 140); c.moveTo(150, 112); c.lineTo(150, 178); c.stroke();
+        c.beginPath(); c.moveTo(160, 52); c.quadraticCurveTo(190, 64, 178, 98); c.lineTo(160, 76); c.closePath(); c.fill();
+        c.beginPath(); c.arc(64, 146, 14, 0, 6.2832); c.fill(); } },
+    { name: 'Barril', draw: c => { c.beginPath(); if (c.roundRect) c.roundRect(52, 26, 96, 150, 22); else c.rect(52, 26, 96, 150); c.fill();
+        c.globalCompositeOperation = 'destination-out'; c.fillRect(40, 66, 120, 7); c.fillRect(40, 128, 120, 7); c.globalCompositeOperation = 'source-over'; } }
+  ];
+  /* Sample each icon into N target points, sorted by angle so particles travel coherently between shapes. */
+  const off = document.createElement('canvas'); off.width = off.height = SIZE; const oc = off.getContext('2d');
+  const targets = SHAPES.map(sh => {
+    oc.clearRect(0, 0, SIZE, SIZE); oc.fillStyle = oc.strokeStyle = '#000'; sh.draw(oc);
+    const d = oc.getImageData(0, 0, SIZE, SIZE).data, pts = [];
+    for (let y = 0; y < SIZE; y += 3) for (let x = 0; x < SIZE; x += 3) if (d[(y * SIZE + x) * 4 + 3] > 120) pts.push([x, y]);
+    const out = []; for (let i = 0; i < N; i++) { const p = pts[Math.floor(i * pts.length / N)]; out.push([p[0] + (Math.random() - .5) * 2.2, p[1] + (Math.random() - .5) * 2.2]); }
+    return out.sort((a, b) => Math.atan2(a[1] - 110, a[0] - 100) - Math.atan2(b[1] - 110, b[0] - 100));
+  });
+  const P = Array.from({ length: N }, (_, i) => ({ x: Math.random() * SIZE, y: Math.random() * SIZE, vx: 0, vy: 0, tx: 0, ty: 0, amber: Math.random() < 0.28, s: 1 + Math.random() * 1.1, ph: Math.random() * 6.28, kk: 0.035 + Math.random() * 0.03 }));
+  let shape = -1, W = 0, H = 0, scale = 1, ox = 0, oy = 0, raf = 0, timer = 0, col = {}, shown = false;
+  const ptr = { x: -1e4, y: -1e4 };
+  const probe = document.createElement('canvas').getContext('2d');
+  const rgb = c => { probe.fillStyle = '#000'; probe.fillStyle = c || '#000'; const h = probe.fillStyle; return h[0] === '#' ? [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)) : (h.match(/\d+/g) || [0, 0, 0]).slice(0, 3).map(Number); };
+  const readCol = () => { const st = getComputedStyle(document.documentElement); col.a = rgb(st.getPropertyValue('--accent').trim()); col.b = rgb(st.getPropertyValue('--amber').trim()); col.dark = st.colorScheme === 'dark' || document.documentElement.classList.contains('is-dark'); };
+  function setShape(i) {
+    shape = i % SHAPES.length; const T = targets[shape];
+    P.forEach((p, j) => { p.tx = T[j][0]; p.ty = T[j][1]; p.vx += (Math.random() - .5) * 3; p.vy += (Math.random() - .5) * 3; });
+    capN.textContent = String(shape + 1).padStart(2, '0'); capT.textContent = SHAPES[shape].name;
+  }
+  function resize() {
+    const r = box.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (!r.width) return; W = r.width; H = r.height; canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    scale = Math.min(W, H) / SIZE * 0.92; ox = (W - SIZE * scale) / 2; oy = (H - SIZE * scale) / 2;
+  }
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+    const r = box.getBoundingClientRect(), mx = (ptr.x - r.left - ox) / scale, my = (ptr.y - r.top - oy) / scale;
+    const still = reduce.matches;
+    for (const p of P) {
+      if (!still) {
+        const dx = p.x - mx, dy = p.y - my, d2 = dx * dx + dy * dy;
+        if (d2 < 900) { const d = Math.sqrt(d2) || 1, f = (1 - d / 30) * 2.2; p.vx += dx / d * f; p.vy += dy / d * f; }
+        p.vx += (p.tx - p.x) * p.kk; p.vy += (p.ty - p.y) * p.kk; p.vx *= 0.86; p.vy *= 0.86; p.x += p.vx; p.y += p.vy;
+      } else { p.x = p.tx; p.y = p.ty; }
+      const tw = still ? 0.9 : 0.7 + 0.3 * Math.sin(t * 0.002 + p.ph);
+      const c = p.amber ? col.b : col.a, a = (p.amber ? 0.9 : (col.dark ? 0.75 : 0.62)) * tw;
+      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+      const z = p.s * (1.3 + Math.min(2.5, Math.hypot(p.vx, p.vy)) * 0.5);
+      ctx.fillRect(ox + p.x * scale - z / 2, oy + p.y * scale - z / 2, z, z);
+    }
+  }
+  const frame = t => { raf = 0; if (!shown || document.hidden) return; draw(t); if (!reduce.matches) raf = requestAnimationFrame(frame); };
+  const kick = () => { if (!raf && shown) raf = requestAnimationFrame(frame); };
+  function check() {
+    const on = !!document.querySelector('#view-responder .choose') && !document.getElementById('view-responder').hidden;
+    if (on === shown) return; shown = on; box.classList.toggle('on', on);
+    clearInterval(timer);
+    if (on) { resize(); readCol(); if (shape < 0) setShape(0); if (!reduce.matches) timer = setInterval(() => setShape(shape + 1), 4200); kick(); }
+  }
+  addEventListener('pointermove', e => { ptr.x = e.clientX; ptr.y = e.clientY; }, { passive: true });
+  addEventListener('touchmove', e => { const t = e.touches[0]; if (t) { ptr.x = t.clientX; ptr.y = t.clientY; } }, { passive: true });
+  document.documentElement.addEventListener('mouseleave', () => { ptr.x = ptr.y = -1e4; });
+  new MutationObserver(check).observe(document.getElementById('view-responder'), { childList: true, attributes: true, attributeFilter: ['hidden'] });
+  new MutationObserver(() => { readCol(); kick(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => { readCol(); kick(); });
+  document.addEventListener('visibilitychange', kick);
+  if ('ResizeObserver' in window) new ResizeObserver(() => { resize(); kick(); }).observe(box);
+  check();
 })();
 </script>
 </body>
