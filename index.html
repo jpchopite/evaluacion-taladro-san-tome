@@ -104,7 +104,11 @@ svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor;
 .hero-meta { list-style: none; margin: 22px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .hero-meta li { display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); color: var(--band-ink-2); font-size: 14px; }
 .hero-meta b { font-family: var(--font-mono); color: var(--band-ink); font-weight: 600; }
-.vz { align-self: center; width: 100%; display: grid; gap: 10px; color: var(--band-ink); }
+.vz { align-self: center; width: 100%; display: grid; gap: 10px; color: var(--band-ink); padding: 14px 14px 12px; border-radius: 18px; border: 1px solid rgba(255,255,255,.13); background: linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.015)); box-shadow: 0 24px 50px -30px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.06); }
+.vz-kicker { display: inline-flex; align-items: center; gap: 8px; }
+.vz-kicker::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 60%, transparent); animation: vzping 2.2s ease-out infinite; }
+@keyframes vzping { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 55%, transparent); } 70%, 100% { box-shadow: 0 0 0 9px transparent; } }
+@media (prefers-reduced-motion: reduce) { .vz-kicker::before { animation: none; } }
 .vz-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .vz-kicker { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--band-ink-2); font-weight: 600; }
 .vz-tabs { display: inline-flex; padding: 3px; border-radius: 999px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); }
@@ -541,11 +545,11 @@ td.heat { text-align: center; font-weight: 700; font-variant-numeric: tabular-nu
       <div class="eyebrow">Visitas guiadas al taladro</div>
       <h1>Taladro Escuela <span>San Tomé</span></h1>
       <p>Evaluación de la visita guiada. Cuéntenos qué aprendió en cada parada del recorrido.</p>
-      <ul class="hero-meta"><li><b>7</b> paradas</li><li><b>4</b> grupos</li><li><b>≈ 15</b> minutos</li></ul>
+      <ul class="hero-meta"><li><b>7</b> paradas</li><li><b>2</b> grupos</li><li><b>≈ 15</b> minutos</li></ul>
     </div>
     <section class="vz" id="vzmap" aria-label="Mapa petrolero de Venezuela">
       <div class="vz-top">
-        <span class="vz-kicker">Venezuela petrolera</span>
+        <span class="vz-kicker">Mapa interactivo</span>
         <div class="vz-tabs" role="tablist" aria-label="Capas del mapa">
           <button type="button" role="tab" data-layer="cuencas" aria-selected="true">Cuencas</button>
           <button type="button" role="tab" data-layer="infra" aria-selected="false">Refinación</button>
@@ -1185,12 +1189,19 @@ function chooserView() {
       <div class="dc-txt"><strong>Tiene un cuestionario sin terminar</strong><span>${esc(GRUPOS[d.grupo].corto)} · paso ${(d.paso || 0) + 1} de ${GRUPOS[d.grupo].pasos.length}</span></div>
       <div class="dc-act"><button class="btn primary sm" id="draft-go">Continuar</button><button class="btn ghost sm" id="draft-drop">Descartar</button></div>
     </div>` : '';
-  const cards = Object.entries(GRUPOS).map(([k, g], i) => `
+  const cards = Object.entries(GRUPOS).map(([k, g], i) => g.prueba ? `
+    <div class="group-card soon" data-secret="${k}" data-tone="soon" style="--i:${i}" aria-disabled="true">
+      <span class="gc-top"><span class="gc-icon" data-unlock="${k}">${ICON[g.icon]}</span><span class="gc-tag">${esc(g.uni)}</span></span>
+      <span class="n">${esc(g.nombre)}</span>
+      <span class="d">${esc((PROXIMOS_ANTES.find(x => x.uni === g.uni) || {}).desc || '')}</span>
+      <span class="gc-meta"><span>Próxima visita</span></span>
+      <span class="gc-cta">Disponible pronto</span>
+    </div>` : `
     <button class="group-card" data-g="${k}" data-tone="${k}" style="--i:${i}">
       <span class="gc-top"><span class="gc-icon">${ICON[g.icon]}</span><span class="gc-tag">${esc(g.uni)}</span></span>
       <span class="n">${esc(g.nombre)}</span>
       <span class="d">${esc(g.desc)}</span>
-      <span class="gc-meta">${g.prueba ? '<span class="gc-test">Modo de prueba</span>' : ''}<span>${g.pasos.length} etapas (A–${LET[g.pasos.length - 1]})</span><span>≈ 15 min</span><span>${allItems(k).filter(i => i.t !== 'consent').length} preguntas</span></span>
+      <span class="gc-meta"><span>${g.pasos.length} etapas (A–${LET[g.pasos.length - 1]})</span><span>≈ 15 min</span><span>${allItems(k).filter(i => i.t !== 'consent').length} preguntas</span></span>
       <span class="gc-cta">Comenzar ${ICON.arrow}</span>
     </button>`).join('') + PROXIMOS.map((g, i) => `
     <div class="group-card soon" data-tone="soon" style="--i:${2 + i}" aria-disabled="true">
@@ -1212,14 +1223,20 @@ function chooserView() {
   </div>`;
 }
 function bindChooser() {
-  document.querySelectorAll('.group-card[data-g]').forEach(b => b.addEventListener('click', () => {
+  const abrir = (b, g) => {
     b.classList.add('picked'); buzz(10);
     setTimeout(() => {
       store.del(DRAFT_KEY);
-      Object.assign(st, { grupo: b.dataset.g, paso: 0, maxPaso: 0, r: {}, error: '' });
+      Object.assign(st, { grupo: g, paso: 0, maxPaso: 0, r: {}, error: '' });
       shownDepth = 0; shaftPx = 0; saveDraft(); renderResponder(1); scrollToView();
     }, reduceMotion() ? 0 : 160);
-  }));
+  };
+  document.querySelectorAll('.group-card[data-g]').forEach(b => b.addEventListener('click', () => abrir(b, b.dataset.g)));
+  /* Test versions: three quick taps on the card's icon open them. */
+  document.querySelectorAll('[data-unlock]').forEach(ic => { let taps = []; ic.addEventListener('click', () => {
+    const now = Date.now(); taps = taps.filter(x => now - x < 1500); taps.push(now);
+    if (taps.length >= 3) { taps = []; abrir(ic.closest('.group-card'), ic.dataset.unlock); }
+  }); });
   const go = $('#draft-go'), drop = $('#draft-drop');
   if (go) go.addEventListener('click', () => {
     const d = store.get(DRAFT_KEY);
@@ -1986,16 +2003,18 @@ renderStatus();
     const act = active(), ease = reduce.matches ? 1 : 0.14;
     const [cx, cy] = proj(CCS);
     const ring = act && act.national && !reduce.matches ? ((t - actT0) % 2400) * 0.3 : -1;
-    const basinTint = layer === 'cuencas' ? 0.34 : 0.13;
+    const basinTint = layer === 'cuencas' ? 0.55 : 0.22;
+    const idle = !act && m.s < 0.05 && !reduce.matches, sweep = idle ? ((t % 5600) / 5600) * (W * 1.6 + 260) - 130 : -1e9;
     for (const d of dots) {
       const dist = m.s > 0.01 ? Math.hypot(d.x - m.x, d.y - m.y) : 1e9;
       const near = dist < 64 ? smooth(1 - dist / 64) * m.s : 0;
       const tgt = act && act.kind === 'basin' && d.b === act.id ? 1 : (act && act.national && reduce.matches ? 0.6 : 0);
       d.k += (tgt - d.k) * ease;
       let wave = 0; if (ring >= 0) { const q = (Math.hypot(d.x - cx, d.y - cy) - ring) / 16; wave = Math.exp(-q * q) * 0.85; }
-      const lit = Math.max(near * 0.75, d.k, wave);
-      if (lit > 0.03) { ctx.fillStyle = rgba(col.hi, (d.b ? basinTint : 0.18) + 0.6 * lit); ctx.beginPath(); ctx.arc(d.x, d.y, 1.2 + 1 * lit, 0, 6.2832); ctx.fill(); }
-      else { ctx.fillStyle = d.b ? rgba(col.hi, basinTint) : rgba(col.dot, 0.26); ctx.fillRect(d.x - 1.1, d.y - 1.1, 2.2, 2.2); }
+      let sw = 0; if (idle) { const q = (d.x + d.y * 0.6 - sweep) / 34; sw = Math.exp(-q * q) * 0.5; }
+      const lit = Math.max(near * 0.75, d.k, wave, sw);
+      if (lit > 0.03) { ctx.fillStyle = rgba(col.hi, (d.b ? basinTint : 0.3) + 0.5 * lit); ctx.beginPath(); ctx.arc(d.x, d.y, 1.35 + 1 * lit, 0, 6.2832); ctx.fill(); }
+      else { ctx.fillStyle = d.b ? rgba(col.hi, basinTint) : rgba(col.dot, 0.42); ctx.fillRect(d.x - 1.25, d.y - 1.25, 2.5, 2.5); }
     }
     if (act && act.kind === 'basin') { const [ax, ay] = proj(act.at); label(ax - 10, ay, act.short, true); }
     // pins
@@ -2049,14 +2068,18 @@ renderStatus();
     box.querySelectorAll('.vz-tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.layer === l)));
     const now = performance.now(); pins().forEach((p, i) => { pinT[p.id] = now + i * 90; });
     renderLegend(); setActive();
-    clearInterval(autoTimer);
-    if (l === 'historia' && !reduce.matches) {
-      engaged = false; let i = -1;
-      const next = () => { if (engaged || layer !== 'historia') { clearInterval(autoTimer); auto = null; setActive(); return; } const it = LAYERS.historia.items; i = (i + 1) % it.length; auto = it[i]; lastAct = null; setActive(); };
-      setTimeout(next, 700); autoTimer = setInterval(next, 3200);
-    }
+    startAuto(1400);
   }
-  const engage = () => { if (!engaged) { engaged = true; if (auto) { clearInterval(autoTimer); auto = null; } } };
+  let autoI = -1, autoStart = 0, resumeTimer = 0;
+  function startAuto(delay) {
+    clearInterval(autoTimer); clearTimeout(autoStart); auto = null;
+    if (reduce.matches) return;
+    engaged = false; autoI = -1;
+    const next = () => { if (engaged) { clearInterval(autoTimer); auto = null; setActive(); return; } const it = LAYERS[layer].items; autoI = (autoI + 1) % it.length; auto = it[autoI]; lastAct = null; setActive(); };
+    autoStart = setTimeout(() => { next(); autoTimer = setInterval(next, 3200); }, delay);
+  }
+  const engage = () => { clearTimeout(resumeTimer); if (!engaged) { engaged = true; clearTimeout(autoStart); clearInterval(autoTimer); if (auto) { auto = null; lastAct = null; } } };
+  box.addEventListener('pointerleave', () => { clearTimeout(resumeTimer); resumeTimer = setTimeout(() => { if (!pinned && !hover) startAuto(0); }, 7000); });
 
   function hit(x, y) {
     let best = null, bd = 15;
