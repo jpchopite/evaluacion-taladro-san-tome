@@ -1922,6 +1922,10 @@ renderStatus();
   const VEN = [[-71.33,11.78],[-71.36,11.54],[-71.95,11.42],[-71.62,10.97],[-71.63,10.45],[-72.07,9.87],[-71.7,9.07],[-71.26,9.14],[-71.04,9.86],[-71.35,10.21],[-71.4,10.97],[-70.16,11.38],[-70.29,11.85],[-69.94,12.16],[-69.58,11.46],[-68.88,11.44],[-68.23,10.89],[-68.19,10.55],[-67.3,10.55],[-66.23,10.65],[-65.66,10.2],[-64.89,10.08],[-64.33,10.39],[-64.32,10.64],[-63.08,10.7],[-61.88,10.72],[-62.73,10.42],[-62.39,9.95],[-61.59,9.87],[-60.83,9.38],[-60.67,8.58],[-60.15,8.6],[-59.76,8.37],[-60.55,7.78],[-60.64,7.42],[-60.3,7.04],[-60.54,6.86],[-61.16,6.7],[-61.14,6.23],[-61.41,5.96],[-60.73,5.2],[-60.6,4.92],[-60.97,4.54],[-62.09,4.16],[-62.8,4.01],[-63.09,3.77],[-63.89,4.02],[-64.63,4.15],[-64.82,4.06],[-64.37,3.8],[-64.41,3.13],[-64.27,2.5],[-63.42,2.41],[-63.37,2.2],[-64.08,1.92],[-64.2,1.49],[-64.61,1.33],[-65.35,1.1],[-65.55,0.79],[-66.33,0.72],[-66.88,1.25],[-67.18,2.25],[-67.45,2.6],[-67.81,2.82],[-67.3,3.32],[-67.34,3.54],[-67.62,3.84],[-67.82,4.5],[-67.74,5.22],[-67.52,5.56],[-67.34,6.1],[-67.7,6.27],[-68.27,6.15],[-68.99,6.21],[-69.39,6.1],[-70.09,6.96],[-70.67,7.09],[-71.96,6.99],[-72.2,7.34],[-72.44,7.42],[-72.48,7.63],[-72.36,8.0],[-72.44,8.41],[-72.66,8.63],[-72.79,9.09],[-73.3,9.15],[-73.03,9.74],[-72.91,10.45],[-72.61,10.82],[-72.23,11.11],[-71.97,11.61],[-71.33,11.78]];
   const LAKE = { lon: -71.6, lat: 9.75, rx: 0.42, ry: 0.66 };
   const CCS = [-66.9, 10.5];
+  const GUY = [[-59.76,8.37],[-59.1,8.0],[-58.48,7.35],[-58.45,6.83],[-58.08,6.81],[-57.54,6.32],[-57.15,5.97],[-57.31,5.07],[-57.91,4.81],[-57.86,4.58],[-58.04,4.06],[-57.6,3.33],[-57.28,3.33],[-57.15,2.77],[-56.54,1.9],[-56.78,1.86],[-57.34,1.95],[-57.66,1.68],[-58.11,1.51],[-58.43,1.46],[-58.54,1.27],[-59.03,1.32],[-59.65,1.79],[-59.72,2.25],[-59.97,2.76],[-59.82,3.61],[-59.54,3.96],[-59.77,4.42],[-60.11,4.57],[-59.98,5.01],[-60.21,5.24],[-60.73,5.2],[-61.41,5.96],[-61.14,6.23],[-61.16,6.7],[-60.54,6.86],[-60.3,7.04],[-60.64,7.42],[-60.55,7.78],[-59.76,8.37]];
+  /* Essequibo river, south to north (lat, lon): the claimed zone is Guyana's territory west of it. */
+  const RIVER = [[1.2, -58.75], [2.5, -58.8], [3.5, -58.7], [4.5, -58.6], [5.5, -58.55], [6.4, -58.5], [7.0, -58.45], [8.6, -58.4]];
+  const riverLon = lat => { for (let i = 1; i < RIVER.length; i++) if (lat <= RIVER[i][0]) { const [a, b] = [RIVER[i - 1], RIVER[i]], f = (lat - a[0]) / (b[0] - a[0]); return a[1] + f * (b[1] - a[1]); } return RIVER[RIVER.length - 1][1]; };
   const TOME = { id: 'tome', kind: 'tome', at: [-64.15, 8.95], t: 'Taladro Escuela San Tomé', m: 'Freites, Anzoátegui', p: 'Centro de formación con taladro real, laboratorios y simulador. Sede de la visita.', short: 'San Tomé' };
   const LAYERS = {
     cuencas: {
@@ -1931,6 +1935,18 @@ renderStatus();
         { id: 'bar', kind: 'basin', short: 'Barinas-Apure', t: 'Cuenca Barinas-Apure', m: 'Barinas y Apure · llanos', p: 'Campos de los llanos occidentales, cerca de la frontera con Colombia.', c: ['Silvestre', 'Sinco', 'Guafita', 'La Victoria'], poly: [[-72.4, 7.9], [-70.5, 8.7], [-69.0, 9.3], [-67.6, 8.6], [-67.8, 7.0], [-70.5, 6.5], [-72.4, 7.0]], at: [-70.0, 7.8] },
         { id: 'ori', kind: 'basin', short: 'Oriental', t: 'Cuenca Oriental', m: 'Anzoátegui y Monagas', p: 'Gran productora de crudo y gas. Aquí están San Tomé y El Tigre.', c: ['El Furrial', 'Punta de Mata', 'Oficina', 'Anaco (gas)'], poly: [[-66.4, 10.3], [-62.6, 10.7], [-61.6, 9.7], [-62.0, 8.75], [-66.5, 8.75]], at: [-62.9, 10.3] },
         { id: 'faj', kind: 'basin', short: 'Faja del Orinoco', t: 'Faja Petrolífera del Orinoco', m: '≈ 55.000 km² · norte del río Orinoco', p: 'Una de las mayores acumulaciones de crudo extrapesado del mundo, dividida en cuatro áreas.', c: ['Boyacá', 'Junín', 'Ayacucho', 'Carabobo'], poly: [[-67.6, 8.75], [-62.0, 8.75], [-62.0, 7.9], [-67.4, 7.6]], at: [-64.8, 8.2] }
+      ],
+      pts: [
+        { id: 'f-lag', kind: 'field', short: 'Lagunillas', t: 'Campo Lagunillas', m: 'Costa Bolívar, Zulia', p: 'Parte de los campos de la costa oriental del lago, de los más productivos en la historia del país.', at: [-71.25, 10.13] },
+        { id: 'f-mg', kind: 'field', short: 'Mene Grande', t: 'Campo Mene Grande', m: 'Zulia', p: 'Aquí se perforó el Zumaque I en 1914, el primer pozo comercial del país.', at: [-70.93, 9.82] },
+        { id: 'f-sil', kind: 'field', short: 'Silvestre', t: 'Campo Silvestre', m: 'Barinas', p: 'Uno de los campos de la cuenca Barinas-Apure.', at: [-70.2, 8.35] },
+        { id: 'f-gua', kind: 'field', short: 'Guafita', t: 'Campo Guafita', m: 'Apure', p: 'Campo de los llanos de Apure, cerca de la frontera con Colombia.', at: [-70.75, 7.25] },
+        { id: 'f-fur', kind: 'field', short: 'El Furrial', t: 'Campo El Furrial', m: 'Monagas', p: 'Uno de los grandes hallazgos del oriente del país, descubierto en la década de 1980.', at: [-63.4, 9.65] },
+        { id: 'f-ana', kind: 'field', short: 'Anaco', t: 'Área de Anaco', m: 'Anzoátegui', p: 'Centro de producción de gas del oriente venezolano.', at: [-64.47, 9.44] },
+        { id: 'f-boy', kind: 'field', short: 'Boyacá', t: 'Área Boyacá', m: 'Faja del Orinoco · antes Machete', p: 'El área más occidental de la Faja.', at: [-66.6, 8.25] },
+        { id: 'f-jun', kind: 'field', short: 'Junín', t: 'Área Junín', m: 'Faja del Orinoco · antes Zuata', p: 'Segunda área de la Faja, de oeste a este.', at: [-65.4, 8.2] },
+        { id: 'f-aya', kind: 'field', short: 'Ayacucho', t: 'Área Ayacucho', m: 'Faja del Orinoco · antes Hamaca', p: 'Tercera área de la Faja, de oeste a este.', at: [-64.0, 8.3] },
+        { id: 'f-car', kind: 'field', short: 'Carabobo', t: 'Área Carabobo', m: 'Faja del Orinoco · antes Cerro Negro', p: 'El área más oriental de la Faja.', at: [-62.9, 8.4] }
       ]
     },
     infra: {
@@ -1940,11 +1956,17 @@ renderStatus();
         { id: 'pal', kind: 'plant', short: 'El Palito', t: 'Refinería El Palito', m: 'Carabobo', p: 'Abastece de combustibles a la región central del país.', at: [-68.12, 10.48] },
         { id: 'plc', kind: 'plant', short: 'Puerto La Cruz · Jose', t: 'Puerto La Cruz y Jose', m: 'Anzoátegui', p: 'Refinería de Puerto La Cruz y Complejo José Antonio Anzoátegui: mejoradores del crudo de la Faja y terminal de exportación.', at: [-64.7, 10.15] },
         TOME
+      ],
+      pts: [
+        { id: 'p-bg', kind: 'plant', small: true, short: 'Bajo Grande', t: 'Refinería Bajo Grande', m: 'Zulia', p: 'Refinería orientada a la producción de asfaltos.', at: [-71.65, 10.5] },
+        { id: 'p-tab', kind: 'plant', small: true, short: 'El Tablazo', t: 'Complejo Petroquímico Ana María Campos', m: 'El Tablazo, Zulia', p: 'Principal complejo petroquímico del occidente: olefinas, plásticos y fertilizantes.', at: [-71.45, 10.85] },
+        { id: 'p-sr', kind: 'plant', small: true, short: 'San Roque', t: 'Refinería San Roque', m: 'Anzoátegui', p: 'Pequeña refinería especializada en parafinas.', at: [-64.65, 9.3] }
       ]
     },
     historia: {
-      intro: { t: 'Hitos de la industria', m: '1914 – 1976', p: 'Recorra la línea de tiempo o déjela avanzar sola.' },
+      intro: { t: 'Hitos de la industria', m: '1878 – 1976', p: 'Recorra la línea de tiempo o déjela avanzar sola.' },
       items: [
+        { id: 'h78', kind: 'event', yr: 1878, short: 'Petrolia del Táchira', t: '1878 · Petrolia del Táchira', m: 'La Alquitrana, Táchira', p: 'Nace la Compañía Nacional Minera Petrolia del Táchira, primera empresa petrolera del país.', at: [-72.36, 7.72] },
         { id: 'h14', kind: 'event', yr: 1914, short: 'Zumaque I', t: '1914 · Zumaque I', m: 'Mene Grande, Zulia', p: 'Primer pozo petrolero comercial del país. Marca el inicio de la industria venezolana.', at: [-70.93, 9.82] },
         { id: 'h22', kind: 'event', yr: 1922, short: 'Barroso II', t: '1922 · Barroso II', m: 'Cabimas, Zulia', p: 'Su reventón fluyó durante días y mostró al mundo el potencial de la cuenca de Maracaibo.', at: [-71.45, 10.39] },
         { id: 'h43', kind: 'event', yr: 1943, short: 'Ley de Hidrocarburos', t: '1943 · Ley de Hidrocarburos', m: 'Alcance nacional', p: 'Unificó las normas petroleras y aumentó la participación del Estado en la renta.', at: CCS, national: true },
@@ -1953,7 +1975,7 @@ renderStatus();
       ]
     }
   };
-  const K = Math.cos(7 * Math.PI / 180), X0 = -73.4, X1 = -59.6, Y0 = 0.6, Y1 = 12.3;
+  const K = Math.cos(7 * Math.PI / 180), X0 = -73.4, X1 = -58.2, Y0 = 0.6, Y1 = 12.3;
   const inPoly = (x, y, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
   const probe = document.createElement('canvas').getContext('2d');
   const rgb = c => { probe.fillStyle = '#000'; probe.fillStyle = c || '#000'; const h = probe.fillStyle; return h[0] === '#' ? [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)) : (h.match(/\d+/g) || [0, 0, 0]).slice(0, 3).map(Number); };
@@ -1967,7 +1989,8 @@ renderStatus();
   const proj = ([lon, lat]) => [ox + (lon - X0) * K * sc, oy + (Y1 - lat) * sc];
   const unproj = (x, y) => [(x - ox) / (K * sc) + X0, Y1 - (y - oy) / sc];
   const active = () => hover || pinned || auto;
-  const pins = () => { const it = LAYERS[layer].items.filter(i => i.kind !== 'basin'); return it.includes(TOME) ? it : [...it, TOME]; };
+  const pins = () => { const it = [...LAYERS[layer].items.filter(i => i.kind !== 'basin'), ...(LAYERS[layer].pts || [])]; return it.includes(TOME) ? it : [...it, TOME]; };
+  const inEseq = (lon, lat) => inPoly(lon, lat, GUY) && lon < riverLon(lat);
   const readCol = () => { const st = getComputedStyle(document.documentElement); col.dot = rgb(st.getPropertyValue('--band-ink').trim()); col.hi = rgb(st.getPropertyValue('--amber').trim()); col.bg = rgb(st.getPropertyValue('--band').trim()); font = getComputedStyle(document.body).fontFamily || font; };
 
   function build() {
@@ -1979,7 +2002,7 @@ renderStatus();
     const basins = LAYERS.cuencas.items;
     for (let y = gap / 2; y < H; y += gap) for (let x = gap / 2; x < W; x += gap) {
       const [lon, lat] = unproj(x, y);
-      if (!inPoly(lon, lat, VEN)) continue;
+      if (!inPoly(lon, lat, VEN)) { if (inEseq(lon, lat)) dots.push({ x, y, b: null, z: true, k: 0, w: 0 }); continue; }
       const lx = (lon - LAKE.lon) / LAKE.rx, ly = (lat - LAKE.lat) / LAKE.ry; if (lx * lx + ly * ly < 1) continue;
       const b = basins.find(B => inPoly(lon, lat, B.poly));
       dots.push({ x, y, b: b ? b.id : null, k: 0, w: 0 });
@@ -2008,21 +2031,23 @@ renderStatus();
     for (const d of dots) {
       const dist = m.s > 0.01 ? Math.hypot(d.x - m.x, d.y - m.y) : 1e9;
       const near = dist < 64 ? smooth(1 - dist / 64) * m.s : 0;
-      const tgt = act && act.kind === 'basin' && d.b === act.id ? 1 : (act && act.national && reduce.matches ? 0.6 : 0);
+      const tgt = (act && act.kind === 'basin' && d.b === act.id) ? 1 : (act && act.national && reduce.matches ? 0.6 : 0);
       d.k += (tgt - d.k) * ease;
       let wave = 0; if (ring >= 0) { const q = (Math.hypot(d.x - cx, d.y - cy) - ring) / 16; wave = Math.exp(-q * q) * 0.85; }
       let sw = 0; if (idle) { const q = (d.x + d.y * 0.6 - sweep) / 34; sw = Math.exp(-q * q) * 0.5; }
       const lit = Math.max(near * 0.75, d.k, wave, sw);
+      if (d.z) { ctx.strokeStyle = rgba(col.dot, 0.42 + 0.3 * lit); ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(d.x - 1.8, d.y + 1.8); ctx.lineTo(d.x + 1.8, d.y - 1.8); ctx.stroke(); continue; }
       if (lit > 0.03) { ctx.fillStyle = rgba(col.hi, (d.b ? basinTint : 0.3) + 0.5 * lit); ctx.beginPath(); ctx.arc(d.x, d.y, 1.35 + 1 * lit, 0, 6.2832); ctx.fill(); }
       else { ctx.fillStyle = d.b ? rgba(col.hi, basinTint) : rgba(col.dot, 0.42); ctx.fillRect(d.x - 1.25, d.y - 1.25, 2.5, 2.5); }
     }
     if (act && act.kind === 'basin') { const [ax, ay] = proj(act.at); label(ax - 10, ay, act.short, true); }
+
     // pins
     const seenCcs = { done: false };
     for (const p of pins()) {
       if (p.national) { if (seenCcs.done) continue; seenCcs.done = true; }
       const isAct = act && (act === p || (p.national && act.national));
-      const born = pinT[p.id] ?? 0, grow = reduce.matches ? 1 : Math.min(1, (t - born) / 380);
+      const born = pinT[p.id] ?? 0, grow = reduce.matches ? 1 : Math.max(0, Math.min(1, (t - born) / 380));
       const g = 1 - Math.pow(1 - grow, 3);
       const [x, y] = proj(p.at);
       if (p.kind === 'tome' || isAct) {
@@ -2033,7 +2058,8 @@ renderStatus();
       ctx.fillStyle = rgba(col.hi, isAct || p.kind === 'tome' ? 1 : 0.8); ctx.strokeStyle = rgba(col.bg, 1); ctx.lineWidth = 2;
       ctx.beginPath();
       const r = isAct ? 5 : 4;
-      if (p.kind === 'plant') { ctx.rect(-r, -r, 2 * r, 2 * r); }
+      if (p.kind === 'field' || p.small) { const rr = isAct ? 4.2 : 3; ctx.arc(0, 0, rr, 0, 6.2832); ctx.fillStyle = isAct ? rgba(col.hi, 1) : rgba(col.bg, 0.9); ctx.strokeStyle = rgba(col.hi, 0.95); ctx.lineWidth = 1.6; if (p.small) { ctx.beginPath(); ctx.rect(-rr, -rr, 2 * rr, 2 * rr); } }
+      else if (p.kind === 'plant') { ctx.rect(-r, -r, 2 * r, 2 * r); }
       else if (p.kind === 'event') { ctx.moveTo(0, -r - 1); ctx.lineTo(r + 1, 0); ctx.lineTo(0, r + 1); ctx.lineTo(-r - 1, 0); ctx.closePath(); }
       else ctx.arc(0, 0, r, 0, 6.2832);
       ctx.fill(); ctx.stroke(); ctx.restore();
@@ -2066,7 +2092,7 @@ renderStatus();
   function setLayer(l) {
     layer = l; hover = pinned = auto = null; lastAct = null;
     box.querySelectorAll('.vz-tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.layer === l)));
-    const now = performance.now(); pins().forEach((p, i) => { pinT[p.id] = now + i * 90; });
+    const now = performance.now(); pins().forEach((p, i) => { pinT[p.id] = now + i * 50; });
     renderLegend(); setActive();
     startAuto(1400);
   }
@@ -2082,12 +2108,11 @@ renderStatus();
   box.addEventListener('pointerleave', () => { clearTimeout(resumeTimer); resumeTimer = setTimeout(() => { if (!pinned && !hover) startAuto(0); }, 7000); });
 
   function hit(x, y) {
-    let best = null, bd = 15;
+    let best = null, bd = 12;
     for (const p of pins()) { const [px, py] = proj(p.at), d = Math.hypot(x - px, y - py); if (d < bd) { bd = d; best = p; } }
     if (best) return best;
-    if (layer !== 'cuencas') return null;
     const [lon, lat] = unproj(x, y);
-    if (!inPoly(lon, lat, VEN)) return null;
+    if (layer !== 'cuencas' || !inPoly(lon, lat, VEN)) return null;
     return LAYERS.cuencas.items.find(B => inPoly(lon, lat, B.poly)) || null;
   }
 
