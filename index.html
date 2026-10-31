@@ -1996,7 +1996,7 @@ renderStatus();
   let layer = 'cuencas', hover = null, pinned = null, auto = null, actT0 = 0, lastAct = null, engaged = false, autoTimer = 0, pinT = {};
   const m = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4, s: 0, on: false };
   /* 3D: the map is a tilted plane of points (x east, z north, y down); pins rise from it as columns of points.
-     The camera sways gently on its own; the pointer only pushes nearby points and highlights what it touches. */
+     The camera stays fixed; the pointer only pushes nearby points and highlights what it touches. */
   const LC = (X0 + X1) / 2, LATC = (Y0 + Y1) / 2, TILT = 0.6, CT = Math.cos(TILT), ST = Math.sin(TILT), DIST = 26;
   let yaw = 0, cyw = 1, syw = 0;
   const world = (lon, lat) => [(lon - LC) * K, (lat - LATC)];
@@ -2058,7 +2058,6 @@ renderStatus();
     ctx.clearRect(0, 0, W, H);
     const still = reduce.matches, act = active(), ease = still ? 1 : 0.12;
     const age = t - born, follow = Math.min(1, 0.02 + age / 6000);
-    yaw = still ? 0 : 0.11 * Math.sin(t * 0.00023); cyw = Math.cos(yaw); syw = Math.sin(yaw);
     const ringDeg = act && act.national && !still ? ((t - actT0) % 2400) * 0.0105 : -1;
     const idle = !act && m.s < 0.05 && !still, sweepLon = X0 - 2 + ((t % 6400) / 6400) * (X1 - X0 + 4);
     const raise = layer === 'cuencas' ? 0.1 : 0.03;
