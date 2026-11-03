@@ -218,6 +218,7 @@ body.compact main .wrap { padding-top: 24px; }
 .group-card::after { content: ""; position: absolute; width: 220px; height: 220px; right: -90px; top: -110px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--tone) 18%, transparent), transparent); transition: transform .5s var(--ease); pointer-events: none; }
 .group-card[data-tone="maestria"] { --tone: var(--accent-2); --tone-soft: var(--accent-soft); }
 .group-card[data-tone="pregrado"] { --tone: var(--amber); --tone-soft: var(--amber-soft); }
+.group-card[data-tone="geologia"] { --tone: #c0622f; --tone-soft: color-mix(in srgb, #c0622f 16%, var(--surface)); }
 .group-card[data-tone="ucab"] { --tone: #1f9d78; --tone-soft: color-mix(in srgb, #1f9d78 16%, var(--surface)); }
 .group-card[data-tone="unimet"] { --tone: #8a5bd6; --tone-soft: color-mix(in srgb, #8a5bd6 16%, var(--surface)); }
 .group-card.soon { --tone: var(--line); --tone-soft: var(--surface-2); cursor: default; background: color-mix(in srgb, var(--surface) 45%, transparent); border-style: dashed; }
@@ -553,7 +554,7 @@ td.heat { text-align: center; font-weight: 700; font-variant-numeric: tabular-nu
       <div class="eyebrow">Visitas guiadas al taladro</div>
       <h1>Taladro Escuela <span>San Tomé</span></h1>
       <p>Evaluación de la visita guiada. Cuéntenos qué aprendió en cada parada del recorrido.</p>
-      <ul class="hero-meta"><li><b>7</b> paradas</li><li><b>2</b> grupos</li><li><b>≈ 15</b> minutos</li></ul>
+      <ul class="hero-meta"><li><b>7</b> paradas</li><li><b>3</b> grupos</li><li><b>≈ 15</b> minutos</li></ul>
     </div>
     <section class="vz" id="vzmap" aria-label="Mapa petrolero de Venezuela">
       <div class="vz-top">
@@ -617,7 +618,7 @@ const PARADAS = [
 ];
 const PARADAS_N = PARADAS.map((p, i) => `${i + 1}. ${p}`);
 const ETAPAS = ['Inicial (semestres 1 a 4)', 'Media (semestres 5 a 7)', 'Final (semestre 8 en adelante, pasantía o tesis)'];
-/* Pregrado: the career stage (A3) is derived from the semester (A2) instead of being asked twice. */
+/* Pregrado and Geología: the career stage (A3) is derived from the semester (A2) instead of being asked twice. */
 function etapaDeSemestre(v) { if (!v) return undefined; const n = parseInt(v, 10); if (isNaN(n) || n >= 8) return ETAPAS[2]; return n >= 5 ? ETAPAS[1] : ETAPAS[0]; }
 
 const S  = (id, q, op, x = {}) => ({ id, t: 'single', q, op, req: true, ...x });
@@ -851,6 +852,99 @@ const GRUPOS = {
           P('F3_2', 'F3.2 ¿Cómo cree que formar ingenieros en el Taladro Escuela puede impactar al sector y al país (empleo, producción, seguridad, retención de talento)?')
         ] },
       stepComentarios('¿Qué equipo o proceso le hubiera gustado ver con más detalle?', '¿Qué cambiaría para mejorar la próxima visita?')
+    ]
+  },
+
+  geologia: {
+    corto: 'Geología',
+    uni: 'UCV', icon: 'strata', d1Titulo: 'Geociencias y carrera', horasLbl: 'práctica en campo',
+    nombre: 'Pregrado · Escuela de Geología, Minas y Geofísica',
+    desc: 'Estudiantes de Ingeniería Geológica y Geofísica. Mide cómo la visita conecta las geociencias del subsuelo con la perforación y su aporte al avance académico.',
+    seg: { id: 'A3', label: 'Etapa de la carrera', item: { id: 'A3', t: 'single', op: ETAPAS } },
+    pasos: [
+      { titulo: 'Perfil del estudiante', ayuda: 'Datos básicos para analizar los resultados por etapa de la carrera.',
+        items: [
+          CS('CONS'),
+          TX('A1', 'A1. Nombre y apellido', { req: true, auto: 'name' }),
+          TX('A1c', 'A2. Número de cédula', { req: true, kind: 'cedula', help: 'Solo números, sin puntos. Ej.: 12345678' }),
+          S('A2', 'A3. ¿Qué semestre cursa actualmente?', ['1.º', '2.º', '3.º', '4.º', '5.º', '6.º', '7.º', '8.º', '9.º', '10.º', 'Ya terminé las materias (tesis o pasantía)'], { chips: true, help: 'Si ya terminó todas las materias y está en tesis o pasantía, elija la última opción.' }),
+          S('A2b', 'A4. ¿Qué carrera estudia?', ['Ingeniería Geológica', 'Ingeniería Geofísica', 'Ingeniería de Minas'], { otra: true }),
+          S('A4', 'A5. ¿Cuántas materias relacionadas con geología del petróleo o exploración ha aprobado?', ['Ninguna', '1', '2', '3 o más'], { help: 'Por ejemplo: geología del petróleo, sedimentología, estratigrafía, prospección sísmica o registros de pozos.' }),
+          S('A5', 'A6. Antes de esta visita, ¿había estado en un taladro de perforación (real o escuela)?', ['Nunca', 'Una vez', 'Varias veces']),
+          S('A6', 'A7. ¿Ha realizado o está realizando pasantías en el sector hidrocarburos?', ['No', 'Estoy buscando', 'Sí, en curso', 'Sí, ya las terminé']),
+          S('A7', 'A8. ¿Tiene definido su tema de tesis o trabajo especial de grado?', ['No', 'Tengo una idea', 'Sí, ya está definido']),
+          P('A7b', 'A8b. ¿Cuál es su tema de tesis o trabajo especial de grado? Si aún es una idea, descríbala brevemente.', { req: true, showIf: { q: 'A7', vals: ['Tengo una idea', 'Sí, ya está definido'] } }),
+          S('A8', 'A9. ¿Qué área le interesa más para su futuro profesional?', ['Geología de exploración petrolera', 'Geología de yacimientos y producción', 'Geofísica de exploración (sísmica)', 'Petrofísica y registros de pozos', 'Geología de pozo (control geológico durante la perforación)', 'Geomecánica', 'Geología ambiental, geotecnia o minería', 'Aún no lo sé']),
+          S('A9', 'A10. ¿Cuál era su principal expectativa antes de la visita?', ['Ver cómo se usa la geología para decidir dónde y cómo perforar', 'Conocer los equipos de exploración sísmica', 'Conocer los equipos de un taladro real', 'Conocer opciones de certificación, pasantía o empleo'], { otra: true })
+        ] },
+      { titulo: 'Antes y después', ayuda: 'Para cada tema, califique cómo estaba ANTES de la visita y cómo está HOY. 1 = no sabía nada del tema; 5 = podría explicarlo con seguridad a un compañero.',
+        items: [ M('B', 'Su nivel en cada tema', [
+          'B1. Historia de los primeros pozos y de las cuencas petroleras de Venezuela',
+          'B2. Uso de asistentes virtuales e inteligencia artificial en la industria',
+          'B3. Exploración sísmica: fuente de energía (thumper), geófonos y reflexión de ondas',
+          'B4. Del dato sísmico al prospecto: cómo se decide dónde perforar',
+          'B5. Relación entre el tipo de roca y la selección de la mecha',
+          'B6. Ripios de perforación y control geológico del pozo (mud logging)',
+          'B7. Presión de poro, presión de fractura y densidad del lodo',
+          'B8. Control de pozos: por qué una formación puede generar una arremetida',
+          'B9. Cementación y aislamiento de zonas (acuíferos, yacimientos, zonas de pérdida)',
+          'B10. Selección de los puntos de asentamiento del revestidor según la geología',
+          'B11. Rol del geólogo y del geofísico frente al personal del taladro',
+          'B12. Uso de simuladores de perforación',
+          'B13. Relación entre lo que veo en clase y la operación real',
+          'B14. Confianza para hacer pasantías o trabajar en exploración o en un taladro',
+          'B15. Claridad sobre el área de las geociencias en la que quiero especializarme'
+        ], ['Antes', 'Hoy']) ] },
+      { titulo: 'Calificación de las paradas', ayuda: 'Califique cada parada de 1 (muy bajo) a 5 (muy alto) en tres aspectos.',
+        items: [ M('C0', 'Cada parada de la visita', PARADAS_N, ['Claridad', 'Materias', 'Geociencias'], { help: 'Claridad de la explicación · Relación con mis materias · Relación con la geología o la geofísica del subsuelo' }) ] },
+      { titulo: 'Geociencias y carrera', ayuda: '1 = totalmente en desacuerdo; 5 = totalmente de acuerdo.',
+        items: [
+          M('D1', 'D1. Indique su grado de acuerdo', [
+            'D1.1 Ahora entiendo mejor cómo se usa la información geológica y geofísica para decidir dónde y cómo perforar.',
+            'D1.2 Ahora entiendo mejor cómo la sísmica permite inferir la estructura del subsuelo.',
+            'D1.3 Entiendo cómo las propiedades de las rocas (dureza, porosidad, presión) condicionan la perforación.',
+            'D1.4 Entiendo qué aporta el geólogo durante la perforación (ripios, correlación, puntos de revestidor).',
+            'D1.5 La visita me ayudó a entender mejor materias que ya cursé.',
+            'D1.6 La visita me ayudó a definir o ajustar mi tema de tesis.',
+            'D1.7 Me siento mejor preparado para una pasantía o primer empleo en exploración o producción.',
+            'D1.8 Ahora tengo más claro en qué área de las geociencias quiero especializarme.',
+            'D1.9 La visita aportó poco a lo que ya sabía por mis clases.'
+          ], ['Acuerdo'], { na: true, rev: [8], help: '1 = totalmente en desacuerdo · 5 = totalmente de acuerdo · Marque «No aplica» si no corresponde a su caso.' }),
+          S('D1b', 'D1b. ¿Las visitas al Taladro Escuela deberían formar parte del plan de estudios de su escuela?', ['Sí, como actividad obligatoria', 'Sí, como actividad opcional', 'No', 'No estoy seguro']),
+          P('D2', 'D2. ¿Con qué materias de su carrera relaciona lo visto en la visita (por ejemplo sedimentología, estratigrafía, geología estructural, prospección sísmica, geología del petróleo)?'),
+          P('D2b', 'D2b. Elija un concepto de geociencias que reconoció en la visita y explique dónde lo vio (por ejemplo: un ripio, una onda sísmica, una presión de formación).'),
+          H('D3 · Según su etapa de la carrera', 'Esta pregunta cambia según el semestre que indicó al inicio.'),
+          S('D3_ini', 'D3. ¿La visita confirmó su elección de carrera?', ['Sí', 'No', 'Tengo dudas'], { showIf: { q: 'A3', vals: [ETAPAS[0]] } }),
+          P('D3_ini_pq', 'D3b. ¿Por qué?', { showIf: { q: 'A3', vals: [ETAPAS[0]] } }),
+          P('D3_med', 'D3. ¿Qué materia próxima espera entender mejor gracias a la visita?', { showIf: { q: 'A3', vals: [ETAPAS[1]] } }),
+          P('D3_fin', 'D3. ¿Cómo usará lo visto en su tesis, pasantía o búsqueda de empleo?', { showIf: { q: 'A3', vals: [ETAPAS[2]] } }),
+          S('D4', 'D4. ¿Qué módulo le gustaría que el Taladro Escuela agregara para estudiantes de geociencias?', ['Descripción de ripios y núcleos', 'Interpretación de registros de pozos', 'Adquisición y procesamiento sísmico', 'Geonavegación (perforación direccional guiada por la geología)', 'Geomecánica y estabilidad del hoyo'], { otra: true }),
+          MU('D5', 'D5. ¿Para qué le interesaría volver al Taladro Escuela? (puede marcar varias)', ['Prácticas en el simulador', 'Curso o certificación', 'Desarrollar mi tesis o trabajo especial de grado', 'Realizar pasantías', 'Clases prácticas de alguna materia', 'No me interesa volver'], { excl: 'No me interesa volver' })
+        ] },
+      stepsExperiencia('Adaptación de las explicaciones a estudiantes de geociencias', 'A9', '¿Cuál fue la parada más difícil de entender?', 'Del 0 al 10, ¿qué tan probable es que recomiende esta visita a un compañero de la Escuela de Geología, Minas y Geofísica?', 'Ninguna me costó'),
+      { titulo: 'Insumo, producto y resultado', ayuda: AYUDA_F,
+        items: [
+          H('Insumo'),
+          S('F1_1', 'F1.1 Antes de la visita, ¿cuántas horas de práctica en campo (salidas de campo, prospección) había tenido en la carrera?', ['0', '1–10', '11–30', 'Más de 30']),
+          SC('F1_2', 'F1.2 Antes de la visita, ¿cómo calificaría su conocimiento sobre la relación entre la geología del subsuelo y la perforación de un pozo?', 1, 10, 'Nulo', 'Experto'),
+          MU('F1_3', 'F1.3 ¿Qué recursos de la visita contribuyeron más a su aprendizaje? (marque hasta tres)', ['Explicaciones de los guías', 'Asistentes virtuales', 'Equipo de exploración sísmica (thumper)', 'Equipos físicos exhibidos', 'Laboratorio de cementación', 'Recorrido por el taladro completo', 'Simulador de perforación'], { lim: 3, req: true }),
+          H('Producto'),
+          SC('F2_1', 'F2.1 Hoy, ¿cómo calificaría su conocimiento sobre la relación entre la geología del subsuelo y la perforación de un pozo?', 1, 10, 'Nulo', 'Experto'),
+          S('F2_2', 'F2.2 ¿Qué porcentaje del contenido presentado siente que comprendió?', F22),
+          S('F2_3', 'F2.3 ¿Cuántos conceptos que conectan las geociencias con la perforación podría explicar hoy a un compañero?', ['0', '1–2', '3–5', 'Más de 5'], { help: 'Por ejemplo: ventana de lodo, ripios, presión de poro, reflexión sísmica, puntos de revestidor.' }),
+          S('F2_4', 'F2.4 ¿Obtuvo contactos o información sobre pasantías, cursos o empleo?', ['No', 'Sí, información', 'Sí, contactos directos']),
+          H('Resultado'),
+          M('F3_1', 'F3.1 ¿Qué tan probable es que haga lo siguiente en los próximos 6 meses? (1 = nada probable; 5 = muy probable)', [
+            'Usar lo aprendido en una materia, proyecto o salida de campo',
+            'Compartir lo aprendido con compañeros o en un centro de estudiantes',
+            'Elegir un tema de tesis vinculado a exploración o geología del petróleo',
+            'Inscribirse en un curso o certificación del Taladro Escuela',
+            'Solicitar una pasantía en el Taladro Escuela o en una empresa de exploración y producción',
+            'Especializarse en geología del petróleo, geofísica de exploración o petrofísica'
+          ], ['Probabilidad']),
+          P('F3_2', 'F3.2 ¿Cómo cree que formar geocientíficos en el Taladro Escuela puede impactar al sector y al país (exploración, producción, seguridad, retención de talento)?')
+        ] },
+      stepComentarios('¿Qué tema de geociencias le hubiera gustado ver con más detalle?', '¿Qué cambiaría para mejorar la próxima visita?')
     ]
   },
 
@@ -1137,6 +1231,7 @@ const ICON = {
   save: svgI('<path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/>'),
   target: svgI('<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".8"/>'),
   chart: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 27h22"/><path d="M8 23v-6M13 23V11M18 23v-9M23 23V6"/><path d="M7 13l6-5 5 3 6-6"/></svg>',
+  strata: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 11c4-3 8-3 13 0s9 3 13 0"/><path d="M3 17c4-3 8-3 13 0s9 3 13 0"/><path d="M3 23c4-3 8-3 13 0s9 3 13 0"/><path d="M3 28h26"/><path d="M19 4l-5 21"/></svg>',
   pumpjack: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M2 28h28"/><path d="M11 28l4.5-14.5L20 28"/><path d="M13 22h5"/><path d="M6 11.2L26 15.6"/><path d="M6 11.2c-2.6.4-3.4 3.6-2.6 6.4"/><path d="M3.6 17.8V26"/><path d="M2 26h3.2"/><path d="M25 15.4l1 5"/><circle cx="26" cy="22" r="2.6"/><path d="M22.5 28v-3.4h7v3.4"/><circle cx="15.5" cy="13.5" r=".9"/></svg>'
 };
 const TOTAL_DEPTH = 3000;
@@ -1444,7 +1539,7 @@ function readInput(el) {
     const rowEl = document.getElementById(`mr_${domId(q)}_${row}`);
     if (rowEl) { const d = rowDone(it, row); rowEl.classList.toggle('row-done', d); if (d) rowEl.classList.remove('missing'); }
   }
-  if (st.grupo === 'pregrado' && q === 'A2') st.r.A3 = etapaDeSemestre(st.r.A2);
+  if ((st.grupo === 'pregrado' || st.grupo === 'geologia') && q === 'A2') st.r.A3 = etapaDeSemestre(st.r.A2);
   applyConds();
   const justDone = refreshCard(it);
   if (k !== 'text' && k !== 'otra') { buzz(justDone ? [10, 30, 14] : 6); drillPulse(); }
