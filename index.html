@@ -104,39 +104,29 @@ svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor;
 .hero-meta { list-style: none; margin: 22px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .hero-meta li { display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); color: var(--band-ink-2); font-size: 14px; }
 .hero-meta b { font-family: var(--font-mono); color: var(--band-ink); font-weight: 600; }
-.vz { align-self: center; width: 100%; display: grid; gap: 10px; color: var(--band-ink); padding: 14px 14px 12px; border-radius: 18px; border: 1px solid rgba(255,255,255,.13); background: linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.015)); box-shadow: 0 24px 50px -30px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.06); }
-.vz-kicker { display: inline-flex; align-items: center; gap: 8px; }
-.vz-kicker::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 60%, transparent); animation: vzping 2.2s ease-out infinite; }
-@keyframes vzping { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 55%, transparent); } 70%, 100% { box-shadow: 0 0 0 9px transparent; } }
-@media (prefers-reduced-motion: reduce) { .vz-kicker::before { animation: none; } }
-.vz-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-.vz-kicker { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--band-ink-2); font-weight: 600; }
-.vz-tabs { display: inline-flex; padding: 3px; border-radius: 999px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); }
-.vz-tabs button { all: unset; cursor: pointer; padding: 5px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--band-ink-2); transition: background .2s var(--ease), color .2s var(--ease); }
-.vz-tabs button:hover { color: var(--band-ink); }
-.vz-tabs button[aria-selected="true"] { background: var(--amber); color: var(--amber-ink); }
-.vz button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
-.vz-stage { position: relative; aspect-ratio: 1.9; }
-.vz-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; }
-.vz-info { position: relative; min-height: 118px; padding: 10px 13px 11px; border-radius: 12px; background: color-mix(in srgb, var(--band) 80%, transparent); border: 1px solid rgba(255,255,255,.1); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 14px 30px -18px rgba(0,0,0,.7); }
-.vz-info .t { display: inline; font-size: 14px; font-weight: 700; color: var(--amber); line-height: 1.25; }
-.vz-info .m { display: inline; margin-left: 8px; white-space: nowrap; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--band-ink-2); margin-top: 3px; }
-.vz-info p { margin: 6px 0 0; font-size: 12.5px; line-height: 1.45; color: var(--band-ink); }
-.vz-info ul { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0 0; padding: 0; list-style: none; }
-.vz-info li { font-size: 11px; padding: 2px 7px; border-radius: 999px; background: rgba(255,255,255,.07); color: var(--band-ink-2); }
-.vz-info.swap { animation: vzin .3s var(--ease); }
-@keyframes vzin { from { opacity: 0; transform: translateY(5px); } }
-.vz-legend { display: flex; flex-wrap: nowrap; gap: 6px; min-height: 30px; overflow-x: auto; scrollbar-width: none; }
-.vz-legend::-webkit-scrollbar { display: none; }
-.vz .vz-legend button { flex: none; white-space: nowrap; }
-.vz-legend button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 8px; font-size: 12px; color: var(--band-ink-2); border: 1px solid rgba(255,255,255,.1); transition: color .2s, border-color .2s, background .2s; }
-.vz-legend button i { width: 7px; height: 7px; border-radius: 2px; background: var(--amber); opacity: .55; transition: opacity .2s, transform .2s; }
-.vz-legend button.on, .vz-legend button:hover { color: var(--band-ink); border-color: color-mix(in srgb, var(--amber) 60%, transparent); background: rgba(255,255,255,.05); }
-.vz-legend button.on i { opacity: 1; transform: scale(1.3); }
-.vz-legend b { font-family: var(--font-mono); font-weight: 600; color: var(--amber); }
-.vz-legend .prog { position: relative; overflow: hidden; }
-.vz-legend .prog::after { content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: var(--amber); transform-origin: left; animation: vzprog 3.2s linear; }
-@keyframes vzprog { from { transform: scaleX(0); } }
+.tour { align-self: center; width: 100%; display: grid; gap: 12px; color: var(--band-ink); padding: 16px 16px 14px; border-radius: 18px; border: 1px solid rgba(255,255,255,.13); background: linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.015)); box-shadow: 0 24px 50px -30px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.06); }
+.tour-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tour-kicker { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--band-ink-2); font-weight: 600; }
+.tour-kicker::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); animation: tourping 2.2s ease-out infinite; }
+@keyframes tourping { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 55%, transparent); } 70%, 100% { box-shadow: 0 0 0 9px transparent; } }
+.tour-count { font-size: 12px; color: var(--band-ink-2); }
+.tour-count b { font-family: var(--font-mono); font-weight: 600; color: var(--amber); }
+/* The stops sit on a vertical well; the amber "pipe" is drilled down to the active stop. */
+.tour-list { position: relative; list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; --fill: 0px; }
+.tour-list::before, .tour-list::after { content: ""; position: absolute; left: 13px; top: 18px; width: 2px; }
+.tour-list::before { bottom: 18px; background: repeating-linear-gradient(to bottom, rgba(255,255,255,.2) 0 4px, transparent 4px 8px); }
+.tour-list::after { height: var(--fill); background: var(--amber); box-shadow: 0 0 8px color-mix(in srgb, var(--amber) 70%, transparent); transition: height .5s var(--ease); }
+.tour-list button { all: unset; box-sizing: border-box; position: relative; z-index: 1; width: 100%; display: flex; align-items: center; gap: 12px; padding: 4px 10px 4px 0; border-radius: 9px; cursor: pointer; font-size: 13.5px; line-height: 1.25; color: var(--band-ink-2); transition: color .2s, background .2s; }
+.tour-list .n { flex: none; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; font-family: var(--font-mono); font-size: 12px; font-weight: 600; background: var(--band); border: 1px solid rgba(255,255,255,.2); color: var(--band-ink-2); transition: background .25s, color .25s, border-color .25s, transform .3s var(--ease-back); }
+.tour-list li.past .n { border-color: color-mix(in srgb, var(--amber) 55%, transparent); color: var(--amber); }
+.tour-list button:hover, .tour-list li.on button { color: var(--band-ink); background: rgba(255,255,255,.045); }
+.tour-list li.on .n { background: var(--amber); border-color: var(--amber); color: var(--amber-ink); transform: scale(1.12); }
+.tour-list button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.tour-info { margin: 0; padding: 10px 13px 11px; border-radius: 12px; background: color-mix(in srgb, var(--band) 80%, transparent); border: 1px solid rgba(255,255,255,.1); font-size: 13px; line-height: 1.45; color: var(--band-ink); }
+.tour-info b { display: block; margin-bottom: 2px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--amber); }
+.tour-info.swap { animation: tourin .3s var(--ease); }
+@keyframes tourin { from { opacity: 0; transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) { .tour-kicker::before, .tour-info.swap { animation: none; } .tour-list::after { transition: none; } }
 .rig { width: 100%; height: auto; color: var(--band-ink-2); overflow: visible; }
 .rig .ground { stroke: currentColor; stroke-width: 1.5; opacity: .5; }
 .rig .s1 { fill: var(--amber); opacity: .2; } .rig .s2 { fill: #6aa6dd; opacity: .16; } .rig .s3 { fill: var(--amber); opacity: .1; }
@@ -155,7 +145,7 @@ svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor;
   .hero { grid-template-columns: 1fr; padding-block: 56px 0; }
   .theme-lbl { display: none; }
   .theme-btn { padding: 0; width: 32px; justify-content: center; }
-  .rig, .vz { display: none; }
+  .rig, .tour { display: none; }
   .hero-copy p { font-size: 16px; }
 }
 
@@ -169,7 +159,7 @@ main .wrap { padding-block: 32px 72px; position: relative; }
 @media (max-width: 720px) { .morph { width: 150vw; top: 30px; } .morph.on { opacity: .45; } .is-dark .morph.on { opacity: .7; } }
 #view-responder, #view-resultados, #status { position: relative; z-index: 1; }
 body.compact .hero { padding-block: 52px 0; }
-body.compact .hero-copy p, body.compact .hero-meta, body.compact .rig, body.compact .vz { display: none; }
+body.compact .hero-copy p, body.compact .hero-meta, body.compact .rig, body.compact .tour { display: none; }
 body.compact .band h1 { font-size: clamp(30px, 5vw, 46px); margin-top: 8px; }
 body.compact .band h1 span { display: inline; }
 body.compact .tabs { margin: 16px 0 14px; }
@@ -554,22 +544,20 @@ td.heat { text-align: center; font-weight: 700; font-variant-numeric: tabular-nu
       <div class="eyebrow">Visitas guiadas al taladro</div>
       <h1>Taladro Escuela <span>San Tomé</span></h1>
       <p>Evaluación de la visita guiada. Cuéntenos qué aprendió en cada parada del recorrido.</p>
-      <ul class="hero-meta"><li><b>7</b> paradas</li><li><b>3</b> grupos</li><li><b>≈ 15</b> minutos</li></ul>
+      <ul class="hero-meta"><li><b>7</b> paradas</li><li><b>2</b> grupos</li><li><b>≈ 15</b> minutos</li></ul>
     </div>
-    <section class="vz" id="vzmap" aria-label="Mapa petrolero de Venezuela">
-      <div class="vz-top">
-        <span class="vz-kicker">Mapa interactivo</span>
-        <div class="vz-tabs" role="tablist" aria-label="Capas del mapa">
-          <button type="button" role="tab" data-layer="cuencas" aria-selected="true">Cuencas</button>
-          <button type="button" role="tab" data-layer="infra" aria-selected="false">Refinación</button>
-          <button type="button" role="tab" data-layer="historia" aria-selected="false">Historia</button>
-        </div>
-      </div>
-      <div class="vz-stage">
-        <canvas aria-hidden="true"></canvas>
-      </div>
-      <div class="vz-info" aria-live="polite"></div>
-      <div class="vz-legend"></div>
+    <section class="tour" id="tour" aria-label="Recorrido de la visita">
+      <div class="tour-top"><span class="tour-kicker">El recorrido</span><span class="tour-count"><b>7</b> paradas</span></div>
+      <ol class="tour-list">
+        <li data-d="Del Zumaque I, en 1914, a la Venezuela petrolera: cómo nació la industria."><button type="button" aria-pressed="false"><span class="n">1</span>Historia de los primeros pozos</button></li>
+        <li data-d="Asistentes virtuales con inteligencia artificial explican cada área del taladro."><button type="button" aria-pressed="false"><span class="n">2</span>Centro virtual y asistentes por área</button></li>
+        <li data-d="Mechas, válvulas y preventores, y el thumper que genera ondas para conocer el subsuelo."><button type="button" aria-pressed="false"><span class="n">3</span>Partes del taladro y equipo thumper</button></li>
+        <li data-d="Cómo se diseña y se prueba el cemento que fija el revestidor y aísla las zonas del pozo."><button type="button" aria-pressed="false"><span class="n">4</span>Equipos y laboratorio de cementación</button></li>
+        <li data-d="Donde se forma y se certifica al personal que trabaja en el taladro."><button type="button" aria-pressed="false"><span class="n">5</span>Aulas de formación y certificación</button></li>
+        <li data-d="El piso del taladro, el sistema de lodo y los equipos de izaje y rotación."><button type="button" aria-pressed="false"><span class="n">6</span>Recorrido por el taladro completo</button></li>
+        <li data-d="Escenarios críticos, como una arremetida, practicados sin riesgo y sin costo de operación."><button type="button" aria-pressed="false"><span class="n">7</span>Aula avanzada y simulador</button></li>
+      </ol>
+      <p class="tour-info" aria-live="polite"></p>
     </section>
   </div>
   <div class="wrap">
@@ -857,6 +845,8 @@ const GRUPOS = {
 
   geologia: {
     corto: 'Geología',
+    prueba: true,
+    pronto: 'Estudiantes de la Escuela de Geología, Minas y Geofísica de la Universidad Central de Venezuela. El cuestionario se habilitará después de la visita.',
     uni: 'UCV', icon: 'strata', d1Titulo: 'Geociencias y carrera', horasLbl: 'práctica en campo',
     nombre: 'Pregrado · Escuela de Geología, Minas y Geofísica',
     desc: 'Estudiantes de Ingeniería Geológica y Geofísica. Mide cómo la visita conecta las geociencias del subsuelo con la perforación y su aporte al avance académico.',
@@ -1297,7 +1287,7 @@ function chooserView() {
     <div class="group-card soon" data-secret="${k}" data-tone="soon" style="--i:${i}" aria-disabled="true">
       <span class="gc-top"><span class="gc-icon" data-unlock="${k}">${ICON[g.icon]}</span><span class="gc-tag">${esc(g.uni)}</span></span>
       <span class="n">${esc(g.nombre)}</span>
-      <span class="d">${esc((PROXIMOS_ANTES.find(x => x.uni === g.uni) || {}).desc || '')}</span>
+      <span class="d">${esc(g.pronto || (PROXIMOS_ANTES.find(x => x.uni === g.uni) || {}).desc || '')}</span>
       <span class="gc-meta"><span>Próxima visita</span></span>
       <span class="gc-cta">Disponible pronto</span>
     </div>` : `
@@ -2017,312 +2007,52 @@ renderStatus();
 })();
 </script>
 <script>
-/* Hero: interactive oil map of Venezuela with three layers (basins, refining, history).
-   Map, legend and info panel are linked: hovering or focusing any of them highlights the same item. */
+/* Hero: the seven stops of the visit on a vertical well. It steps through them on its own;
+   hovering or focusing a stop shows it, and a click keeps it selected until clicked again. */
 (() => {
-  const box = document.getElementById('vzmap'); if (!box) return;
-  const stage = box.querySelector('.vz-stage'), canvas = stage.querySelector('canvas'), info = box.querySelector('.vz-info'), legend = box.querySelector('.vz-legend');
-  const ctx = canvas.getContext('2d'); if (!ctx) return;
-  const VEN = [[-71.33,11.78],[-71.36,11.54],[-71.95,11.42],[-71.62,10.97],[-71.63,10.45],[-72.07,9.87],[-71.7,9.07],[-71.26,9.14],[-71.04,9.86],[-71.35,10.21],[-71.4,10.97],[-70.16,11.38],[-70.29,11.85],[-69.94,12.16],[-69.58,11.46],[-68.88,11.44],[-68.23,10.89],[-68.19,10.55],[-67.3,10.55],[-66.23,10.65],[-65.66,10.2],[-64.89,10.08],[-64.33,10.39],[-64.32,10.64],[-63.08,10.7],[-61.88,10.72],[-62.73,10.42],[-62.39,9.95],[-61.59,9.87],[-60.83,9.38],[-60.67,8.58],[-60.15,8.6],[-59.76,8.37],[-60.55,7.78],[-60.64,7.42],[-60.3,7.04],[-60.54,6.86],[-61.16,6.7],[-61.14,6.23],[-61.41,5.96],[-60.73,5.2],[-60.6,4.92],[-60.97,4.54],[-62.09,4.16],[-62.8,4.01],[-63.09,3.77],[-63.89,4.02],[-64.63,4.15],[-64.82,4.06],[-64.37,3.8],[-64.41,3.13],[-64.27,2.5],[-63.42,2.41],[-63.37,2.2],[-64.08,1.92],[-64.2,1.49],[-64.61,1.33],[-65.35,1.1],[-65.55,0.79],[-66.33,0.72],[-66.88,1.25],[-67.18,2.25],[-67.45,2.6],[-67.81,2.82],[-67.3,3.32],[-67.34,3.54],[-67.62,3.84],[-67.82,4.5],[-67.74,5.22],[-67.52,5.56],[-67.34,6.1],[-67.7,6.27],[-68.27,6.15],[-68.99,6.21],[-69.39,6.1],[-70.09,6.96],[-70.67,7.09],[-71.96,6.99],[-72.2,7.34],[-72.44,7.42],[-72.48,7.63],[-72.36,8.0],[-72.44,8.41],[-72.66,8.63],[-72.79,9.09],[-73.3,9.15],[-73.03,9.74],[-72.91,10.45],[-72.61,10.82],[-72.23,11.11],[-71.97,11.61],[-71.33,11.78]];
-  const LAKE = { lon: -71.6, lat: 9.75, rx: 0.42, ry: 0.66 };
-  const CCS = [-66.9, 10.5];
-  const GUY = [[-59.76,8.37],[-59.1,8.0],[-58.48,7.35],[-58.45,6.83],[-58.08,6.81],[-57.54,6.32],[-57.15,5.97],[-57.31,5.07],[-57.91,4.81],[-57.86,4.58],[-58.04,4.06],[-57.6,3.33],[-57.28,3.33],[-57.15,2.77],[-56.54,1.9],[-56.78,1.86],[-57.34,1.95],[-57.66,1.68],[-58.11,1.51],[-58.43,1.46],[-58.54,1.27],[-59.03,1.32],[-59.65,1.79],[-59.72,2.25],[-59.97,2.76],[-59.82,3.61],[-59.54,3.96],[-59.77,4.42],[-60.11,4.57],[-59.98,5.01],[-60.21,5.24],[-60.73,5.2],[-61.41,5.96],[-61.14,6.23],[-61.16,6.7],[-60.54,6.86],[-60.3,7.04],[-60.64,7.42],[-60.55,7.78],[-59.76,8.37]];
-  /* Essequibo river, south to north (lat, lon): the claimed zone is Guyana's territory west of it. */
-  const RIVER = [[1.2, -58.75], [2.5, -58.8], [3.5, -58.7], [4.5, -58.6], [5.5, -58.55], [6.4, -58.5], [7.0, -58.45], [8.6, -58.4]];
-  const riverLon = lat => { for (let i = 1; i < RIVER.length; i++) if (lat <= RIVER[i][0]) { const [a, b] = [RIVER[i - 1], RIVER[i]], f = (lat - a[0]) / (b[0] - a[0]); return a[1] + f * (b[1] - a[1]); } return RIVER[RIVER.length - 1][1]; };
-  const TOME = { id: 'tome', kind: 'tome', at: [-64.15, 8.95], t: 'Taladro Escuela San Tomé', m: 'Freites, Anzoátegui', p: 'Centro de formación con taladro real, laboratorios y simulador. Sede de la visita.', short: 'San Tomé' };
-  const LAYERS = {
-    cuencas: {
-      intro: { t: 'Cuencas petroleras', m: 'Mayores reservas probadas del mundo · OPEP', p: 'Pase el cursor o toque una cuenca para ver sus campos principales.' },
-      items: [
-        { id: 'mar', kind: 'basin', short: 'Maracaibo', t: 'Cuenca de Maracaibo', m: 'Zulia · occidente', p: 'La cuenca más prolífica del país y cuna de la industria petrolera.', c: ['Costa Bolívar', 'Tía Juana', 'Lagunillas', 'Bachaquero', 'Mene Grande'], poly: [[-73.3, 11.3], [-70.9, 11.3], [-70.2, 10.2], [-70.5, 8.7], [-72.4, 7.9], [-72.9, 9.2]], at: [-71.3, 10.9] },
-        { id: 'bar', kind: 'basin', short: 'Barinas-Apure', t: 'Cuenca Barinas-Apure', m: 'Barinas y Apure · llanos', p: 'Campos de los llanos occidentales, cerca de la frontera con Colombia.', c: ['Silvestre', 'Sinco', 'Guafita', 'La Victoria'], poly: [[-72.4, 7.9], [-70.5, 8.7], [-69.0, 9.3], [-67.6, 8.6], [-67.8, 7.0], [-70.5, 6.5], [-72.4, 7.0]], at: [-70.0, 7.8] },
-        { id: 'ori', kind: 'basin', short: 'Oriental', t: 'Cuenca Oriental', m: 'Anzoátegui y Monagas', p: 'Gran productora de crudo y gas. Aquí están San Tomé y El Tigre.', c: ['El Furrial', 'Punta de Mata', 'Oficina', 'Anaco (gas)'], poly: [[-66.4, 10.3], [-62.6, 10.7], [-61.6, 9.7], [-62.0, 8.75], [-66.5, 8.75]], at: [-62.9, 10.3] },
-        { id: 'faj', kind: 'basin', short: 'Faja del Orinoco', t: 'Faja Petrolífera del Orinoco', m: '≈ 55.000 km² · norte del río Orinoco', p: 'Una de las mayores acumulaciones de crudo extrapesado del mundo, dividida en cuatro áreas.', c: ['Boyacá', 'Junín', 'Ayacucho', 'Carabobo'], poly: [[-67.6, 8.75], [-62.0, 8.75], [-62.0, 7.9], [-67.4, 7.6]], at: [-64.8, 8.2] }
-      ],
-      pts: [
-        { id: 'f-lag', kind: 'field', short: 'Lagunillas', t: 'Campo Lagunillas', m: 'Costa Bolívar, Zulia', p: 'Parte de los campos de la costa oriental del lago, de los más productivos en la historia del país.', at: [-71.25, 10.13] },
-        { id: 'f-mg', kind: 'field', short: 'Mene Grande', t: 'Campo Mene Grande', m: 'Zulia', p: 'Aquí se perforó el Zumaque I en 1914, el primer pozo comercial del país.', at: [-70.93, 9.82] },
-        { id: 'f-sil', kind: 'field', short: 'Silvestre', t: 'Campo Silvestre', m: 'Barinas', p: 'Uno de los campos de la cuenca Barinas-Apure.', at: [-70.2, 8.35] },
-        { id: 'f-gua', kind: 'field', short: 'Guafita', t: 'Campo Guafita', m: 'Apure', p: 'Campo de los llanos de Apure, cerca de la frontera con Colombia.', at: [-70.75, 7.25] },
-        { id: 'f-fur', kind: 'field', short: 'El Furrial', t: 'Campo El Furrial', m: 'Monagas', p: 'Uno de los grandes hallazgos del oriente del país, descubierto en la década de 1980.', at: [-63.4, 9.65] },
-        { id: 'f-ana', kind: 'field', short: 'Anaco', t: 'Área de Anaco', m: 'Anzoátegui', p: 'Centro de producción de gas del oriente venezolano.', at: [-64.47, 9.44] },
-        { id: 'f-boy', kind: 'field', short: 'Boyacá', t: 'Área Boyacá', m: 'Faja del Orinoco · antes Machete', p: 'El área más occidental de la Faja.', at: [-66.6, 8.25] },
-        { id: 'f-jun', kind: 'field', short: 'Junín', t: 'Área Junín', m: 'Faja del Orinoco · antes Zuata', p: 'Segunda área de la Faja, de oeste a este.', at: [-65.4, 8.2] },
-        { id: 'f-aya', kind: 'field', short: 'Ayacucho', t: 'Área Ayacucho', m: 'Faja del Orinoco · antes Hamaca', p: 'Tercera área de la Faja, de oeste a este.', at: [-64.0, 8.3] },
-        { id: 'f-car', kind: 'field', short: 'Carabobo', t: 'Área Carabobo', m: 'Faja del Orinoco · antes Cerro Negro', p: 'El área más oriental de la Faja.', at: [-62.9, 8.4] }
-      ]
-    },
-    infra: {
-      intro: { t: 'Refinación y procesamiento', m: 'Circuito petrolero nacional', p: 'Toque un punto para ver la refinería o el complejo.' },
-      items: [
-        { id: 'crp', kind: 'plant', short: 'Paraguaná', t: 'Complejo Refinador Paraguaná', m: 'Falcón · Amuay y Cardón', p: 'Uno de los complejos refinadores más grandes del mundo.', at: [-70.2, 11.7] },
-        { id: 'pal', kind: 'plant', short: 'El Palito', t: 'Refinería El Palito', m: 'Carabobo', p: 'Abastece de combustibles a la región central del país.', at: [-68.12, 10.48] },
-        { id: 'plc', kind: 'plant', short: 'Puerto La Cruz · Jose', t: 'Puerto La Cruz y Jose', m: 'Anzoátegui', p: 'Refinería de Puerto La Cruz y Complejo José Antonio Anzoátegui: mejoradores del crudo de la Faja y terminal de exportación.', at: [-64.7, 10.15] },
-        TOME
-      ],
-      pts: [
-        { id: 'p-bg', kind: 'plant', small: true, short: 'Bajo Grande', t: 'Refinería Bajo Grande', m: 'Zulia', p: 'Refinería orientada a la producción de asfaltos.', at: [-71.65, 10.5] },
-        { id: 'p-tab', kind: 'plant', small: true, short: 'El Tablazo', t: 'Complejo Petroquímico Ana María Campos', m: 'El Tablazo, Zulia', p: 'Principal complejo petroquímico del occidente: olefinas, plásticos y fertilizantes.', at: [-71.45, 10.85] },
-        { id: 'p-sr', kind: 'plant', small: true, short: 'San Roque', t: 'Refinería San Roque', m: 'Anzoátegui', p: 'Pequeña refinería especializada en parafinas.', at: [-64.65, 9.3] }
-      ]
-    },
-    historia: {
-      intro: { t: 'Hitos de la industria', m: '1878 – 1976', p: 'Recorra la línea de tiempo o déjela avanzar sola.' },
-      items: [
-        { id: 'h78', kind: 'event', yr: 1878, short: 'Petrolia del Táchira', t: '1878 · Petrolia del Táchira', m: 'La Alquitrana, Táchira', p: 'Nace la Compañía Nacional Minera Petrolia del Táchira, primera empresa petrolera del país.', at: [-72.36, 7.72] },
-        { id: 'h14', kind: 'event', yr: 1914, short: 'Zumaque I', t: '1914 · Zumaque I', m: 'Mene Grande, Zulia', p: 'Primer pozo petrolero comercial del país. Marca el inicio de la industria venezolana.', at: [-70.93, 9.82] },
-        { id: 'h22', kind: 'event', yr: 1922, short: 'Barroso II', t: '1922 · Barroso II', m: 'Cabimas, Zulia', p: 'Su reventón fluyó durante días y mostró al mundo el potencial de la cuenca de Maracaibo.', at: [-71.45, 10.39] },
-        { id: 'h43', kind: 'event', yr: 1943, short: 'Ley de Hidrocarburos', t: '1943 · Ley de Hidrocarburos', m: 'Alcance nacional', p: 'Unificó las normas petroleras y aumentó la participación del Estado en la renta.', at: CCS, national: true },
-        { id: 'h60', kind: 'event', yr: 1960, short: 'OPEP', t: '1960 · Nace la OPEP', m: 'Bagdad · miembro fundador', p: 'Venezuela funda la OPEP junto a Arabia Saudita, Irak, Irán y Kuwait.', at: CCS, national: true },
-        { id: 'h76', kind: 'event', yr: 1976, short: 'Nacionalización', t: '1976 · Nacionalización', m: '1 de enero de 1976', p: 'La industria pasa a manos del Estado y PDVSA comienza a operar.', at: CCS, national: true }
-      ]
-    }
-  };
-  const K = Math.cos(7 * Math.PI / 180), X0 = -73.4, X1 = -58.2, Y0 = 0.6, Y1 = 12.3;
-  const inPoly = (x, y, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
-  const probe = document.createElement('canvas').getContext('2d');
-  const rgb = c => { probe.fillStyle = '#000'; probe.fillStyle = c || '#000'; const h = probe.fillStyle; return h[0] === '#' ? [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)) : (h.match(/\d+/g) || [0, 0, 0]).slice(0, 3).map(Number); };
-  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${Math.max(0, Math.min(1, a))})`;
-  const esc = x => String(x).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+  const box = document.getElementById('tour'); if (!box) return;
+  const list = box.querySelector('.tour-list'), info = box.querySelector('.tour-info');
+  const items = [...list.querySelectorAll('li')];
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
-  const smooth = x => x * x * (3 - 2 * x);
-  let W = 0, H = 0, sc = 1, ox = 0, oy = 0, dots = [], col = {}, font = 'sans-serif', raf = 0, visible = true, gap = 6, born = 0;
-  let layer = 'cuencas', hover = null, pinned = null, auto = null, actT0 = 0, lastAct = null, engaged = false, autoTimer = 0, pinT = {};
-  const m = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4, s: 0, on: false };
-  /* 3D: the map is a tilted plane of points (x east, z north, y down); pins rise from it as columns of points.
-     The camera stays fixed; the pointer only pushes nearby points and highlights what it touches. */
-  const LC = (X0 + X1) / 2, LATC = (Y0 + Y1) / 2, TILT = 0.6, CT = Math.cos(TILT), ST = Math.sin(TILT), DIST = 26;
-  let yaw = 0, cyw = 1, syw = 0;
-  const world = (lon, lat) => [(lon - LC) * K, (lat - LATC)];
-  const project = (X, Y, Z) => {
-    const x1 = X * cyw - Z * syw, z1 = X * syw + Z * cyw;
-    const ys = Y * CT - z1 * ST, dz = Y * ST + z1 * CT, f = DIST / (DIST + dz);
-    return [ox + x1 * sc * f, oy + ys * sc * f, f, dz];
-  };
-  const proj = ([lon, lat], h = 0) => { const [X, Z] = world(lon, lat); return project(X, -h, Z); };
-  const active = () => hover || pinned || auto;
-  const pins = () => { const it = [...LAYERS[layer].items.filter(i => i.kind !== 'basin'), ...(LAYERS[layer].pts || [])]; return it.includes(TOME) ? it : [...it, TOME]; };
-  const inEseq = (lon, lat) => inPoly(lon, lat, GUY) && lon < riverLon(lat);
-  const NEON = { dot: [90, 205, 255], basin: [255, 150, 40], basinHi: [255, 205, 90], pin: [255, 70, 200], tome: [255, 236, 120], eseq: [120, 170, 220] };
-  const readCol = () => { const st = getComputedStyle(document.documentElement); col.dot = rgb(st.getPropertyValue('--band-ink').trim()); col.hi = rgb(st.getPropertyValue('--amber').trim()); col.bg = rgb(st.getPropertyValue('--band').trim()); font = getComputedStyle(document.body).fontFamily || font; };
+  const infoHtml = i => `<b>Parada ${i + 1}</b>${items[i].dataset.d}`;
+  let cur = -1, timer = 0, resume = 0, pinned = false;
 
-  function build() {
-    const r = stage.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
-    if (!r.width || !r.height) return false;
-    W = r.width; H = r.height; canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    /* Fit the tilted map (with room for the tallest pins) inside the stage. */
-    yaw = 0; cyw = 1; syw = 0; sc = 1; ox = 0; oy = 0;
-    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
-    for (const [lon, lat] of [...VEN, ...GUY]) { const [x, y] = proj([lon, lat], 0); x0 = Math.min(x0, x); x1 = Math.max(x1, x); y1 = Math.max(y1, y); const [, yt] = proj([lon, lat], 1.0); y0 = Math.min(y0, yt); }
-    sc = Math.min((W - 8) / (x1 - x0), (H - 4) / (y1 - y0));
-    ox = (W - (x1 - x0) * sc) / 2 - x0 * sc; oy = (H - (y1 - y0) * sc) / 2 - y0 * sc;
-    /* Grid of points across the country, sampled in degrees. */
-    const step = 0.205; dots = []; gap = step * K * sc;
-    const basins = LAYERS.cuencas.items;
-    for (let lat = Y0; lat <= Y1; lat += step) for (let lon = X0; lon <= X1; lon += step) {
-      const lo = lon + ((Math.round((lat - Y0) / step) % 2) ? step / 2 : 0);
-      let b = null, z = false;
-      if (!inPoly(lo, lat, VEN)) { if (!inEseq(lo, lat)) continue; z = true; }
-      else { const lx = (lo - LAKE.lon) / LAKE.rx, ly = (lat - LAKE.lat) / LAKE.ry; if (lx * lx + ly * ly < 1) continue; const B = basins.find(B2 => inPoly(lo, lat, B2.poly)); b = B ? B.id : null; }
-      const a = Math.random() * 6.283, c2 = Math.acos(2 * Math.random() - 1), rr = 4 + Math.random() * 5;
-      dots.push({ lon: lo, lat, b, z, k: 0, ox: 0, oy: 0, vx: 0, vy: 0, ex: Math.sin(c2) * Math.cos(a) * rr, ey: Math.cos(c2) * rr, ez: Math.sin(c2) * Math.sin(a) * rr, d: 0.025 + Math.random() * 0.03, sx: 0, sy: 0 });
-    }
-    if (!born) born = performance.now();
-    return true;
+  function fill() {
+    if (cur < 0) return;
+    const top = items[0].querySelector('.n').getBoundingClientRect().top, at = items[cur].querySelector('.n').getBoundingClientRect().top;
+    list.style.setProperty('--fill', Math.max(0, at - top) + 'px');
   }
-
-  /* Labels are placed one by one and never overlap each other or the info card. */
-  let placed = [];
-  const hits = (a, b2) => a.x < b2.x + b2.w && a.x + a.w > b2.x && a.y < b2.y + b2.h && a.y + a.h > b2.y;
-  function label(x, y, text, strong) {
-    ctx.font = `600 11px ${font}`;
-    const w = ctx.measureText(text).width + 14, h = 20;
-    const tries = [[x + 10, y - h / 2], [x - 10 - w, y - h / 2], [x - w / 2, y - h - 10], [x - w / 2, y + 10], [x + 10, y - h - 8], [x - 10 - w, y - h - 8], [x + 10, y + 8], [x - 10 - w, y + 8], [x - w / 2, y - h - 32]];
-    let rect = null;
-    for (const [lx, ly] of tries) { const c = { x: Math.max(2, Math.min(W - w - 2, lx)), y: Math.max(2, Math.min(H - h - 2, ly)), w, h }; if (!placed.some(p2 => hits(c, p2))) { rect = c; break; } }
-    if (!rect) return;
-    placed.push({ x: rect.x - 3, y: rect.y - 3, w: rect.w + 6, h: rect.h + 6 });
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = rgba(col.bg, 0.9); ctx.strokeStyle = strong ? 'rgba(255,150,40,.8)' : 'rgba(90,205,255,.35)'; ctx.lineWidth = 1;
-    ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(rect.x, rect.y, w, h, 6); else ctx.rect(rect.x, rect.y, w, h); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = strong ? 'rgb(255,205,90)' : rgba(col.dot, 0.9); ctx.textBaseline = 'middle'; ctx.textAlign = 'left'; ctx.fillText(text, rect.x + 7, rect.y + h / 2 + 0.5);
+  function show(i) {
+    if (i === cur) return; cur = i;
+    items.forEach((li, k) => { li.classList.toggle('on', k === i); li.classList.toggle('past', k < i); li.querySelector('button').setAttribute('aria-pressed', String(k === i)); });
+    info.innerHTML = infoHtml(i);
+    info.classList.remove('swap'); void info.offsetWidth; info.classList.add('swap');
+    fill();
   }
-
-  function draw(t) {
-    ctx.clearRect(0, 0, W, H);
-    const still = reduce.matches, act = active(), ease = still ? 1 : 0.12;
-    const age = t - born, follow = Math.min(1, 0.02 + age / 6000);
-    const ringDeg = act && act.national && !still ? ((t - actT0) % 2400) * 0.0105 : -1;
-    const idle = !act && m.s < 0.05 && !still, sweepLon = X0 - 2 + ((t % 6400) / 6400) * (X1 - X0 + 4);
-    const raise = layer === 'cuencas' ? 0.1 : 0.03;
-    const sz = Math.max(1.8, gap * 0.42);
-    ctx.globalCompositeOperation = 'lighter';
-    for (const d of dots) {
-      const tgt = act && act.kind === 'basin' && d.b === act.id ? 1 : 0;
-      d.k += (tgt - d.k) * ease;
-      const h = d.b ? raise + 0.38 * d.k : 0;
-      if (!still) { const e = 1 - Math.max(d.d, follow * 0.2); d.ex *= e; d.ey *= e; d.ez *= e; } else { d.ex = d.ey = d.ez = 0; }
-      const [X, Z] = world(d.lon, d.lat);
-      const [sx, sy, f, dz] = project(X + d.ex, -h + d.ey, Z + d.ez);
-      if (!still) {
-        const dx = sx + d.ox - m.x, dy = sy + d.oy - m.y, d2 = m.s > 0.05 ? dx * dx + dy * dy : 1e9;
-        if (d2 < 2025) { const dd = Math.sqrt(d2) || 1, k = (1 - dd / 45) * 1.3; d.vx += dx / dd * k; d.vy += dy / dd * k; }
-        d.vx += -d.ox * 0.09; d.vy += -d.oy * 0.09; d.vx *= 0.8; d.vy *= 0.8; d.ox += d.vx; d.oy += d.vy;
-      }
-      d.sx = sx + d.ox; d.sy = sy + d.oy;
-      const dist = m.s > 0.01 ? Math.hypot(sx - m.x, sy - m.y) : 1e9;
-      const near = dist < 70 ? smooth(1 - dist / 70) * m.s : 0;
-      let wave = 0; if (ringDeg >= 0) { const q = (Math.hypot(d.lon - CCS[0], d.lat - CCS[1]) - ringDeg) / 0.55; wave = Math.exp(-q * q) * 0.9; }
-      let sw = 0; if (idle) { const q = (d.lon + (d.lat - 6) * 0.5 - sweepLon) / 0.8; sw = Math.exp(-q * q) * 0.55; }
-      const lit = Math.max(near * 0.7, d.k, wave, sw);
-      const fog = Math.max(0.55, Math.min(1.1, 1.05 - dz * 0.035));
-      let c, a;
-      if (d.z) { c = NEON.eseq; a = 0.28 * fog; }
-      else if (d.b) { c = d.k > 0.3 ? NEON.basinHi : NEON.basin; a = ((layer === 'cuencas' ? 0.5 : 0.22) + 0.5 * lit) * fog; }
-      else { c = lit > 0.05 ? NEON.basin : NEON.dot; a = (0.46 + 0.45 * lit) * fog; }
-      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${Math.min(1, a)})`;
-      const z = sz * f * (1 + 0.5 * lit);
-      if (d.z) { ctx.fillRect(d.sx - z * 0.6, d.sy, z * 1.2, z * 0.45); }
-      else ctx.fillRect(d.sx - z / 2, d.sy - z / 2, z, z);
-    }
-    /* Pins: columns of points rising from the map, with a marker on top. */
-    placed = [];
-    const labels = [];
-    const list = pins().filter((p2, i, arr) => !p2.national || arr.findIndex(q => q.national) === i);
-    const tops = [];
-    for (const p2 of list) {
-      const isAct = act && (act === p2 || (p2.national && act.national));
-      const grow = still ? 1 : Math.max(0, Math.min(1, (t - (pinT[p2.id] ?? 0)) / 420)), g = 1 - Math.pow(1 - grow, 3);
-      const hp = (p2.kind === 'tome' ? 1.25 : (p2.kind === 'field' || p2.small) ? 0.55 : 0.9) * g * (isAct ? 1.25 : 1);
-      const [bx, by, bf, bdz] = proj(p2.at, 0), [tx, ty, tf] = proj(p2.at, hp);
-      const c = p2.kind === 'tome' ? NEON.tome : NEON.pin;
-      const n = Math.max(2, Math.round(Math.hypot(tx - bx, ty - by) / 3.2));
-      for (let i = 0; i <= n; i++) { const u = i / n; ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${(0.25 + 0.6 * u) * (isAct ? 1 : 0.8)})`; const zz = 1.6 + 0.6 * u; ctx.fillRect(bx + (tx - bx) * u - zz / 2, by + (ty - by) * u - zz / 2, zz, zz); }
-      if (p2.kind === 'tome' || isAct) {
-        const ph = still ? 0.45 : ((t + (p2.kind === 'tome' ? 0 : 700)) % 2400) / 2400, rx = (5 + 16 * ph) * bf;
-        ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.8 * (1 - ph)})`; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(bx, by, rx, rx * 0.5, 0, 0, 6.2832); ctx.stroke();
-      }
-      tops.push({ p2, tx, ty, bx, by, bdz, isAct, c, g });
-    }
-    tops.sort((a2, b2) => b2.bdz - a2.bdz);
-    for (const o of tops) {
-      const { p2, tx, ty, isAct, c, g } = o, r = (isAct ? 5 : (p2.kind === 'field' || p2.small) ? 3 : 4) * g;
-      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${isAct || p2.kind === 'tome' ? 1 : 0.85})`; ctx.beginPath();
-      if (p2.kind === 'plant' || p2.small) ctx.rect(tx - r, ty - r, 2 * r, 2 * r);
-      else if (p2.kind === 'event') { ctx.moveTo(tx, ty - r - 1); ctx.lineTo(tx + r + 1, ty); ctx.lineTo(tx, ty + r + 1); ctx.lineTo(tx - r - 1, ty); ctx.closePath(); }
-      else ctx.arc(tx, ty, r, 0, 6.2832);
-      ctx.fill();
-      if (isAct) labels.unshift([tx, ty, p2.national ? 'Caracas · ' + act.short : (p2.yr ? p2.yr + ' · ' + p2.short : p2.short), true]);
-      else if (p2.kind === 'tome' && layer !== 'historia') labels.push([tx, ty, 'San Tomé', false]);
-    }
-    if (act && act.kind === 'basin') { const [ax, ay] = proj(act.at, raise + 0.38); labels.unshift([ax, ay, act.short, true]); }
-    for (const L2 of labels) label(...L2);
-  }
-  const infoHtml = it => `<span class="t">${esc(it.t)}</span><span class="m">${esc(it.m)}</span><p>${esc(it.p)}</p>${it.c ? `<ul>${it.c.map(c => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}`;
-  /* Reserve the height of the tallest note so the panel never jumps as notes change. */
+  /* Reserve the height of the longest note so the panel never jumps. */
   function sizeInfo() {
-    const all = [TOME]; Object.values(LAYERS).forEach(L2 => { all.push(L2.intro, ...L2.items, ...(L2.pts || [])); });
+    if (!info.offsetWidth) return;
     const keep = info.innerHTML; info.style.minHeight = '0px'; let mx = 0;
-    for (const it of all) { info.innerHTML = infoHtml(it); mx = Math.max(mx, info.offsetHeight); }
+    items.forEach((_, i) => { info.innerHTML = infoHtml(i); mx = Math.max(mx, info.offsetHeight); });
     info.innerHTML = keep; info.style.minHeight = mx + 'px';
   }
-  function renderInfo() {
-    const act = active(), it = act || LAYERS[layer].intro;
-    if (it === lastAct) return; lastAct = it;
-    info.innerHTML = infoHtml(it);
-    info.classList.remove('swap'); void info.offsetWidth; info.classList.add('swap');
-    legend.querySelectorAll('button').forEach(b => { b.classList.toggle('on', !!act && b.dataset.id === act.id); b.classList.toggle('prog', !!auto && auto === act && b.dataset.id === auto.id && !reduce.matches); });
-  }
-  function setActive() { const a = active(); if (a && a !== renderInfo._a) actT0 = performance.now(); renderInfo._a = a; renderInfo(); kick(); }
-
-  function renderLegend() {
-    const items = LAYERS[layer].items;
-    legend.innerHTML = items.map(i => `<button type="button" data-id="${i.id}" aria-label="${esc(i.t)}">${i.yr ? `<b>${i.yr}</b>` : `<i></i>${esc(i.short)}`}</button>`).join('');
-    legend.querySelectorAll('button').forEach(b => {
-      const it = items.find(i => i.id === b.dataset.id);
-      b.addEventListener('mouseenter', () => { engage(); hover = it; setActive(); });
-      b.addEventListener('mouseleave', () => { if (hover === it) { hover = null; setActive(); } });
-      b.addEventListener('focus', () => { engage(); hover = it; setActive(); });
-      b.addEventListener('blur', () => { if (hover === it) { hover = null; setActive(); } });
-      b.addEventListener('click', () => { engage(); pinned = pinned === it ? null : it; hover = null; setActive(); });
-    });
-  }
-  function setLayer(l) {
-    layer = l; hover = pinned = auto = null; lastAct = null;
-    box.querySelectorAll('.vz-tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.layer === l)));
-    const now = performance.now(); pins().forEach((p, i) => { pinT[p.id] = now + i * 50; });
-    renderLegend(); setActive();
-    startAuto(1400);
-  }
-  let autoI = -1, autoStart = 0, resumeTimer = 0;
-  function startAuto(delay) {
-    clearInterval(autoTimer); clearTimeout(autoStart); auto = null;
-    if (reduce.matches) return;
-    engaged = false; autoI = -1;
-    const next = () => { if (engaged) { clearInterval(autoTimer); auto = null; setActive(); return; } const it = LAYERS[layer].items; autoI = (autoI + 1) % it.length; auto = it[autoI]; lastAct = null; setActive(); };
-    autoStart = setTimeout(() => { next(); autoTimer = setInterval(next, 3200); }, delay);
-  }
-  const engage = () => { clearTimeout(resumeTimer); if (!engaged) { engaged = true; clearTimeout(autoStart); clearInterval(autoTimer); if (auto) { auto = null; lastAct = null; } } };
-  box.addEventListener('pointerleave', () => { clearTimeout(resumeTimer); resumeTimer = setTimeout(() => { if (!pinned && !hover) startAuto(0); }, 7000); });
-
-  function hit(x, y) {
-    let best = null, bd = 11;
-    for (const p2 of pins()) {
-      const hp = p2.kind === 'tome' ? 1.25 : (p2.kind === 'field' || p2.small) ? 0.55 : 0.9;
-      const [bx, by] = proj(p2.at, 0), [tx, ty] = proj(p2.at, hp);
-      const vx = tx - bx, vy = ty - by, L2 = vx * vx + vy * vy || 1, u = Math.max(0, Math.min(1, ((x - bx) * vx + (y - by) * vy) / L2));
-      const d = Math.hypot(x - (bx + vx * u), y - (by + vy * u)) - (u > 0.85 ? 3 : 0);
-      if (d < bd) { bd = d; best = p2; }
-    }
-    if (best || layer !== 'cuencas') return best;
-    let nd = gap * 0.9, nb = null, any = false;
-    for (const d of dots) { if (d.z) continue; const dd = Math.hypot(d.sx - x, d.sy - y); if (dd < nd) { nd = dd; nb = d.b; any = true; } }
-    return any && nb ? LAYERS.cuencas.items.find(B => B.id === nb) : null;
+  const stop = () => { clearInterval(timer); clearTimeout(resume); };
+  function start(delay = 0) {
+    stop(); if (reduce.matches || pinned) return;
+    resume = setTimeout(() => { timer = setInterval(() => show((cur + 1) % items.length), 3400); }, delay);
   }
 
-  function frame(t) {
-    raf = 0; if (!visible || !W) return;
-    m.x += (m.tx - m.x) * 0.22; m.y += (m.ty - m.y) * 0.22; m.s += ((m.on ? 1 : 0) - m.s) * 0.12;
-    draw(t);
-    if (!reduce.matches && !document.hidden) raf = requestAnimationFrame(frame);
-  }
-  function kick() { if (reduce.matches) draw(0); else if (!raf && visible) raf = requestAnimationFrame(frame); }
-
-  stage.addEventListener('pointermove', e => {
-    if (e.pointerType !== 'mouse') return;
-    const r = stage.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-    if (m.s < 0.02) { m.x = x; m.y = y; }
-    m.tx = x; m.ty = y; m.on = true;
-    const h = hit(x, y); if (h) engage();
-    if (h !== hover) { hover = h; setActive(); }
-    canvas.style.cursor = h ? 'pointer' : 'crosshair';
-    kick();
+  items.forEach((li, i) => {
+    const b = li.querySelector('button');
+    b.addEventListener('mouseenter', () => { stop(); if (!pinned) show(i); });
+    b.addEventListener('focus', () => { stop(); if (!pinned) show(i); });
+    b.addEventListener('click', () => { pinned = !(pinned && cur === i); show(i); if (!pinned) start(3400); });
   });
-  stage.addEventListener('pointerleave', () => { m.on = false; hover = null; setActive(); });
-  stage.addEventListener('click', e => {
-    const r = stage.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, h = hit(x, y);
-    engage(); pinned = h && pinned !== h ? h : null; hover = null;
-    if (e.pointerType && e.pointerType !== 'mouse') { m.tx = m.x = x; m.ty = m.y = y; m.on = true; setTimeout(() => { m.on = false; kick(); }, 700); }
-    setActive();
-  });
-  box.querySelectorAll('.vz-tabs button').forEach(b => b.addEventListener('click', () => setLayer(b.dataset.layer)));
-  box.querySelector('.vz-tabs').addEventListener('keydown', e => {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-    const tabs = [...box.querySelectorAll('.vz-tabs button')], i = tabs.findIndex(b => b.dataset.layer === layer);
-    const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length]; setLayer(n.dataset.layer); n.focus();
-  });
+  list.addEventListener('mouseleave', () => start(4000));
+  list.addEventListener('focusout', e => { if (!list.contains(e.relatedTarget)) start(4000); });
 
-  const recolor = () => { readCol(); kick(); };
-  matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', recolor);
-  new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-  document.addEventListener('visibilitychange', kick);
-  if ('IntersectionObserver' in window) new IntersectionObserver(es => es.forEach(e => { visible = e.isIntersecting; if (visible) kick(); })).observe(stage);
-  let lastW = 0;
-  const resize = () => { if (build()) { if (Math.abs(W - lastW) > 1) { lastW = W; sizeInfo(); } draw(performance.now()); kick(); } };
-  readCol();
-  if ('ResizeObserver' in window) new ResizeObserver(resize).observe(stage); else addEventListener('resize', resize);
-  setLayer('cuencas'); resize();
+  if ('ResizeObserver' in window) new ResizeObserver(() => { sizeInfo(); fill(); }).observe(list);
+  show(0); sizeInfo(); start(1800);
 })();
 </script>
 <script>
